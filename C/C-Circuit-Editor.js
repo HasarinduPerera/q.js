@@ -152,6 +152,10 @@ C.Circuit.Editor = function( circuit, targetEl ){
 	const boardContainerEl = createDiv()
 	circuitEl.appendChild( boardContainerEl )
 	boardContainerEl.classList.add( 'C-circuit-board-container' )
+	boardContainerEl.addEventListener( 'mousemove', C.Circuit.Editor.onPointerMove )
+	boardContainerEl.addEventListener( 'mouseleave', function(){
+		C.Circuit.Editor.unhighlightAll( circuitEl )
+	})
 
 	const boardEl = createDiv()
 	boardContainerEl.appendChild( boardEl )
@@ -177,6 +181,19 @@ C.Circuit.Editor = function( circuit, targetEl ){
 		const wireEl = createDiv()
 		rowEl.appendChild( wireEl )
 		wireEl.classList.add( 'C-circuit-register-wire' )
+	}
+
+
+	//  Create background highlight bars for each column
+
+	for( let i = 0; i < circuit.timewidth; i ++ ){
+
+		const columnEl = createDiv()
+		backgroundEl.appendChild( columnEl )
+		columnEl.style.gridRowStart = 2
+		columnEl.style.gridRowEnd = C.Circuit.Editor.registerIndexToGridRow( circuit.bandwidth ) + 1
+		columnEl.style.gridColumnStart = i + 3
+		columnEl.setAttribute( 'moment-index', i + 1 )
 	}
 
 
@@ -238,6 +255,26 @@ C.Circuit.Editor = function( circuit, targetEl ){
 	})
 
 
+	//  Add placeholder cells for each grid position
+
+	for( let m = 0; m < circuit.timewidth; m ++ ){
+		for( let r = 0; r < circuit.bandwidth; r ++ ){
+
+			const
+			momentIndex = m + 1,
+			registerIndex = r + 1,
+			cellEl = createDiv()
+
+			cellEl.classList.add( 'C-circuit-cell' )
+			cellEl.setAttribute( 'moment-index', momentIndex )
+			cellEl.setAttribute( 'register-index', registerIndex )
+			cellEl.style.gridRowStart = C.Circuit.Editor.registerIndexToGridRow( registerIndex )
+			cellEl.style.gridColumnStart = C.Circuit.Editor.momentIndexToGridColumn( momentIndex )
+			foregroundEl.appendChild( cellEl )
+		}
+	}
+
+
 	//  Add operations
 
 	circuit.operations.forEach( function( operation ){
@@ -248,7 +285,8 @@ C.Circuit.Editor = function( circuit, targetEl ){
 
 	//  Add event listeners
 
-	circuitEl.addEventListener( 'click', C.Circuit.Editor.onCircuitClick )
+	circuitEl.addEventListener( 'mousedown', C.Circuit.Editor.onPointerPress )
+	circuitEl.addEventListener( 'touchstart', C.Circuit.Editor.onPointerPress )
 	window.addEventListener(
 
 		'C.Circuit.set$',
@@ -306,11 +344,39 @@ Object.assign( C.Circuit.Editor, {
 
 	index: 0,
 	help: function(){ return C.help( this )},
+	dragEl: null,
+	currentGateSymbol: 'NOT',  // Default gate for placement
+	gateList: [ 'NOT', 'AND', 'OR', 'NAND', 'NOR', 'XOR', 'XNOR', 'BUF' ],
 	gridColumnToMomentIndex: function( gridColumn  ){ return +gridColumn - 2 },
 	momentIndexToGridColumn: function( momentIndex ){ return momentIndex + 2 },
 	gridRowToRegisterIndex:  function( gridRow ){ return +gridRow - 1 },
 	registerIndexToGridRow:  function( registerIndex ){ return registerIndex + 1 },
 	gridSize: 4,
+	pointToGrid: function( p ){
+
+		const rem = parseFloat( getComputedStyle( document.documentElement ).fontSize )
+		return 1 + Math.floor( p / ( rem * C.Circuit.Editor.gridSize ))
+	},
+	gridToPoint: function( g ){
+
+		const  rem = parseFloat( getComputedStyle( document.documentElement ).fontSize )
+		return rem * C.Circuit.Editor.gridSize * ( g - 1 )
+	},
+	getInteractionCoordinates: function( event, pageOrClient ){
+
+		if( typeof pageOrClient !== 'string' ) pageOrClient = 'client'
+		if( event.changedTouches &&
+			event.changedTouches.length ) return {
+
+			x: event.changedTouches[ 0 ][ pageOrClient +'X' ],
+			y: event.changedTouches[ 0 ][ pageOrClient +'Y' ]
+		}
+		return {
+
+			x: event[ pageOrClient +'X' ],
+			y: event[ pageOrClient +'Y' ]
+		}
+	},
 
 
 	set: function( circuitEl, operation ){
@@ -323,9 +389,9 @@ Object.assign( C.Circuit.Editor, {
 
 		//  Check if operation already exists
 		const existingEl = foregroundEl.querySelector(
-			`[moment-index="${momentIndex}"][register-index="${registerIndex}"]`
+			`.C-circuit-operation[moment-index="${momentIndex}"][register-index="${registerIndex}"]`
 		)
-		if( existingEl && existingEl.classList.contains( 'C-circuit-operation' )){
+		if( existingEl ){
 			existingEl.remove()
 		}
 
@@ -349,7 +415,7 @@ Object.assign( C.Circuit.Editor, {
 
 		const foregroundEl = circuitEl.querySelector( '.C-circuit-board-foreground' )
 		const operationEl = foregroundEl.querySelector(
-			`[moment-index="${operation.momentIndex}"][register-index="${operation.registerIndices[0]}"]`
+			`.C-circuit-operation[moment-index="${operation.momentIndex}"][register-index="${operation.registerIndices[0]}"]`
 		)
 		if( operationEl ){
 			operationEl.remove()
@@ -357,33 +423,257 @@ Object.assign( C.Circuit.Editor, {
 	},
 
 
-	onCircuitClick: function( event ){
+	unhighlightAll: function( circuitEl ){
+
+		Array.from( circuitEl.querySelectorAll(
+
+			'.C-circuit-board-background > div,'+
+			'.C-circuit-board-foreground > div'
+		))
+		.forEach( function( el ){
+
+			el.classList.remove( 'C-circuit-cell-highlighted' )
+		})
+	},
+
+
+	onPointerMove: function( event ){
 
 		const
-		circuitEl = event.currentTarget,
-		circuit = circuitEl.circuit
+		{ x, y } = C.Circuit.Editor.getInteractionCoordinates( event ),
+		foundEls = document.elementsFromPoint( x, y ),
+		boardContainerEl = foundEls.find( function( el ){
 
-		//  Handle toolbar buttons
-		if( event.target.classList.contains( 'C-circuit-button-undo' )){
-			circuit.history.undo$()
-		}
-		else if( event.target.classList.contains( 'C-circuit-button-redo' )){
-			circuit.history.redo$()
-		}
-		else if( event.target.classList.contains( 'C-circuit-button-evaluate' )){
-			circuit.evaluate$()
-			const resultsEl = circuitEl.querySelector( '.C-circuit-results' )
-			resultsEl.innerText = circuit.report$()
-		}
-		else if( event.target.classList.contains( 'C-circuit-toggle-lock' )){
-			if( circuitEl.hasAttribute( 'locked' )){
-				circuitEl.removeAttribute( 'locked' )
-				event.target.innerText = '🔓'
-			} else {
-				circuitEl.setAttribute( 'locked', 'locked' )
-				event.target.innerText = '🔒'
+			return el.classList.contains( 'C-circuit-board-container' )
+		})
+
+		//  Are we dragging something?
+		if( C.Circuit.Editor.dragEl !== null ){
+
+			event.preventDefault()
+
+			C.Circuit.Editor.dragEl.style.left = ( x + window.pageXOffset + C.Circuit.Editor.dragEl.offsetX ) +'px'
+			C.Circuit.Editor.dragEl.style.top  = ( y + window.pageYOffset + C.Circuit.Editor.dragEl.offsetY ) +'px'
+
+			if( !boardContainerEl && C.Circuit.Editor.dragEl.circuitEl ){
+				C.Circuit.Editor.dragEl.classList.add( 'C-circuit-clipboard-danger' )
+			}
+			else {
+				C.Circuit.Editor.dragEl.classList.remove( 'C-circuit-clipboard-danger' )
 			}
 		}
+
+		if( !boardContainerEl ) return
+
+		const circuitEl = boardContainerEl.closest( '.C-circuit' )
+		if( circuitEl.classList.contains( 'C-circuit-locked' )) return
+
+		//  Unhighlight everything first
+		Array.from( boardContainerEl.querySelectorAll(`
+
+			.C-circuit-board-background > div,
+			.C-circuit-board-foreground > div
+
+		`)).forEach( function( el ){
+
+			el.classList.remove( 'C-circuit-cell-highlighted' )
+		})
+
+		//  Calculate which cell we're over
+		const
+		boardElBounds = boardContainerEl.getBoundingClientRect(),
+		xLocal        = x - boardElBounds.left + boardContainerEl.scrollLeft + 1,
+		yLocal        = y - boardElBounds.top  + boardContainerEl.scrollTop + 1,
+		columnIndex   = C.Circuit.Editor.pointToGrid( xLocal ),
+		rowIndex      = C.Circuit.Editor.pointToGrid( yLocal ),
+		momentIndex   = C.Circuit.Editor.gridColumnToMomentIndex( columnIndex ),
+		registerIndex = C.Circuit.Editor.gridRowToRegisterIndex( rowIndex )
+
+		if( momentIndex > circuitEl.circuit.timewidth ||
+			registerIndex > circuitEl.circuit.bandwidth ) return
+
+		if( momentIndex < 1 || registerIndex < 1 ) return
+
+		//  Highlight the current cell
+		Array.from( boardContainerEl.querySelectorAll(`
+
+			div[moment-index="${ momentIndex }"],
+			div[register-index="${ registerIndex }"]
+		`))
+		.forEach( function( el ){
+
+			el.classList.add( 'C-circuit-cell-highlighted' )
+		})
+	},
+
+
+	onPointerPress: function( event ){
+
+		//  Safety check
+		if( C.Circuit.Editor.dragEl !== null ){
+			C.Circuit.Editor.onPointerRelease( event )
+			return
+		}
+
+		const
+		targetEl  = event.target,
+		circuitEl = targetEl.closest( '.C-circuit' ),
+		paletteEl = targetEl.closest( '.C-circuit-palette' )
+
+		if( !circuitEl && !paletteEl ) return
+
+		const dragEl = document.createElement( 'div' )
+		dragEl.classList.add( 'C-circuit-clipboard' )
+		const { x, y } = C.Circuit.Editor.getInteractionCoordinates( event )
+
+		//  Handle circuit interactions
+		if( circuitEl ){
+
+			const
+			circuit = circuitEl.circuit,
+			circuitIsLocked = circuitEl.classList.contains( 'C-circuit-locked' ),
+			lockEl = targetEl.closest( '.C-circuit-toggle-lock' )
+
+			//  Toggle lock
+			if( lockEl ){
+				if( circuitIsLocked ){
+					circuitEl.classList.remove( 'C-circuit-locked' )
+					lockEl.innerText = '🔓'
+				}
+				else {
+					circuitEl.classList.add( 'C-circuit-locked' )
+					lockEl.innerText = '🔒'
+					C.Circuit.Editor.unhighlightAll( circuitEl )
+				}
+				event.preventDefault()
+				event.stopPropagation()
+				return
+			}
+
+			if( circuitIsLocked ) return
+
+			const
+			undoEl = targetEl.closest( '.C-circuit-button-undo' ),
+			redoEl = targetEl.closest( '.C-circuit-button-redo' ),
+			evaluateEl = targetEl.closest( '.C-circuit-button-evaluate' ),
+			cellEl = targetEl.closest( '.C-circuit-cell' ),
+			operationEl = targetEl.closest( '.C-circuit-operation' )
+
+			event.preventDefault()
+			event.stopPropagation()
+
+			//  Handle toolbar buttons
+			if( undoEl ){
+				circuit.history.undo$()
+				return
+			}
+			if( redoEl ){
+				circuit.history.redo$()
+				return
+			}
+			if( evaluateEl ){
+				circuit.evaluate$()
+				const resultsEl = circuitEl.querySelector( '.C-circuit-results' )
+				resultsEl.innerText = circuit.report$()
+				return
+			}
+
+			//  Handle clicking on existing operation - cycle through gates
+			if( operationEl ){
+
+				const
+				momentIndex = +operationEl.getAttribute( 'moment-index' ),
+				registerIndex = +operationEl.getAttribute( 'register-index' ),
+				currentSymbol = operationEl.getAttribute( 'gate-symbol' ),
+				currentIndex = C.Circuit.Editor.gateList.indexOf( currentSymbol ),
+				nextIndex = ( currentIndex + 1 ) % C.Circuit.Editor.gateList.length,
+				nextSymbol = C.Circuit.Editor.gateList[ nextIndex ]
+
+				circuit.clear$( momentIndex, registerIndex )
+				circuit.set$( nextSymbol, momentIndex, registerIndex )
+
+				return
+			}
+
+			//  Handle clicking on empty cell - place gate
+			if( cellEl ){
+
+				const
+				momentIndex = +cellEl.getAttribute( 'moment-index' ),
+				registerIndex = +cellEl.getAttribute( 'register-index' )
+
+				circuit.set$( C.Circuit.Editor.currentGateSymbol, momentIndex, registerIndex )
+
+				return
+			}
+		}
+
+		//  Handle palette interactions - drag gate from palette
+		else if( paletteEl ){
+
+			const operationEl = targetEl.closest( '.C-circuit-operation' )
+
+			if( !operationEl ) return
+
+			const
+			bounds   = operationEl.getBoundingClientRect(),
+			gateSymbol = operationEl.getAttribute( 'gate-symbol' )
+
+			//  Set as current gate and clone for dragging
+			C.Circuit.Editor.currentGateSymbol = gateSymbol
+
+			dragEl.appendChild( operationEl.cloneNode( true ))
+			dragEl.originEl = paletteEl
+			dragEl.offsetX  = bounds.left - x
+			dragEl.offsetY  = bounds.top  - y
+			dragEl.timestamp = Date.now()
+
+			document.body.appendChild( dragEl )
+			C.Circuit.Editor.dragEl = dragEl
+			C.Circuit.Editor.onPointerMove( event )
+		}
+	},
+
+
+	onPointerRelease: function( event ){
+
+		if( C.Circuit.Editor.dragEl === null ) return
+
+		event.preventDefault()
+		event.stopPropagation()
+
+		const
+		dragEl = C.Circuit.Editor.dragEl,
+		{ x, y } = C.Circuit.Editor.getInteractionCoordinates( event ),
+		foundEls = document.elementsFromPoint( x, y ),
+		boardContainerEl = foundEls.find( function( el ){
+			return el.classList.contains( 'C-circuit-board-container' )
+		})
+
+		//  If we found a circuit board, place the gate
+		if( boardContainerEl ){
+
+			const
+			circuitEl = boardContainerEl.closest( '.C-circuit' ),
+			circuit = circuitEl.circuit,
+			boardElBounds = boardContainerEl.getBoundingClientRect(),
+			xLocal = x - boardElBounds.left + boardContainerEl.scrollLeft + 1,
+			yLocal = y - boardElBounds.top  + boardContainerEl.scrollTop + 1,
+			columnIndex = C.Circuit.Editor.pointToGrid( xLocal ),
+			rowIndex = C.Circuit.Editor.pointToGrid( yLocal ),
+			momentIndex = C.Circuit.Editor.gridColumnToMomentIndex( columnIndex ),
+			registerIndex = C.Circuit.Editor.gridRowToRegisterIndex( rowIndex )
+
+			if( momentIndex >= 1 && momentIndex <= circuit.timewidth &&
+				registerIndex >= 1 && registerIndex <= circuit.bandwidth ){
+
+				circuit.set$( C.Circuit.Editor.currentGateSymbol, momentIndex, registerIndex )
+			}
+		}
+
+		//  Clean up drag element
+		dragEl.remove()
+		C.Circuit.Editor.dragEl = null
 	},
 
 
@@ -396,9 +686,7 @@ Object.assign( C.Circuit.Editor, {
 
 		paletteEl.classList.add( 'C-circuit-palette' )
 
-		'NOT AND OR NAND NOR XOR XNOR BUF'
-		.split( ' ' )
-		.forEach( function( symbol ){
+		C.Circuit.Editor.gateList.forEach( function( symbol ){
 
 			const gate = C.Gate.findBySymbol( symbol )
 			if( !gate ) return
@@ -419,6 +707,13 @@ Object.assign( C.Circuit.Editor, {
 		return paletteEl
 	}
 })
+
+
+//  Add window event listeners for pointer move and release
+window.addEventListener( 'mousemove', C.Circuit.Editor.onPointerMove )
+window.addEventListener( 'touchmove', C.Circuit.Editor.onPointerMove )
+window.addEventListener( 'mouseup', C.Circuit.Editor.onPointerRelease )
+window.addEventListener( 'touchend', C.Circuit.Editor.onPointerRelease )
 
 
 

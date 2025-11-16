@@ -240,6 +240,21 @@
 /*****************/
 
 
+.C-circuit-cell {
+
+	position: relative;
+	width:  4rem;
+	height: 4rem;
+	cursor: pointer;
+	transition: all 0.2s;
+}
+.C-circuit-cell:hover {
+
+	background: rgba( 0, 200, 0, 0.1 );
+	border-radius: 0.5rem;
+}
+
+
 .C-circuit-operation {
 
 	position: relative;
@@ -255,12 +270,26 @@
 	background: var( --C-color-white );
 	cursor: pointer;
 	transition: all 0.2s;
+	z-index: 1;
 }
 .C-circuit-operation:hover {
 
 	background: var( --C-color-newsprint );
 	transform: scale( 1.05 );
 	box-shadow: 0 0.2rem 0.4rem rgba( 0, 0, 0, 0.2 );
+	z-index: 2;
+}
+
+
+/*  Highlighting  */
+
+.C-circuit-cell-highlighted {
+
+	background: rgba( 0, 200, 0, 0.15 );
+}
+.C-circuit-board-background > .C-circuit-cell-highlighted {
+
+	background: rgba( 0, 200, 0, 0.08 );
 }
 
 
@@ -327,4 +356,37 @@
 
 	background: var( --C-color-yellow );
 	color: black;
+}
+
+
+
+
+    /**************/
+   /*            */
+  /*  Clipboard */
+ /*            */
+/**************/
+
+
+.C-circuit-clipboard {
+
+	position: absolute;
+	z-index: 100;
+	min-width:  4rem;
+	min-height: 4rem;
+	transform: scale( 1.05 );
+	pointer-events: none;
+	display: grid;
+	grid-auto-rows:    4rem;
+	grid-auto-columns: 4rem;
+	grid-auto-flow: column;
+}
+.C-circuit-clipboard, .C-circuit-clipboard > div {
+
+	cursor: grabbing;
+}
+.C-circuit-clipboard-danger .C-circuit-operation {
+
+	opacity: 0.5;
+	background: var( --C-color-red ) !important;
 }

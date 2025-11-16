@@ -5,7 +5,12 @@ A classical (digital) circuit simulator inspired by the quantum circuit simulato
 ## Features
 
 - **Classical Logic Gates**: AND, OR, NOT, NAND, NOR, XOR, XNOR, and more
-- **Interactive Circuit Editor**: Visual circuit builder with drag-and-drop interface
+- **Fully Interactive Circuit Editor**:
+  - 🖱️ **Click** on empty cells to place gates
+  - 🔄 **Click** on existing gates to cycle through different gate types
+  - 🎯 **Drag** gates from the palette onto the circuit
+  - ✨ **Hover** highlighting for real-time visual feedback
+  - 🔓 **Lock/unlock** circuits to prevent accidental changes
 - **Multiple Input Formats**: Create circuits programmatically or from text notation
 - **Real-time Evaluation**: Instant circuit evaluation with detailed results
 - **Undo/Redo Support**: Full history tracking for circuit modifications
@@ -60,6 +65,51 @@ A classical (digital) circuit simulator inspired by the quantum circuit simulato
 - **XNOR** - Outputs 1 if inputs are the same
 - **BUFFER** - Passes the input unchanged
 - **PROBE** - Monitoring point (passes value through)
+
+## Interactive Features
+
+The circuit editor provides a fully interactive experience:
+
+### Click to Place Gates
+
+Click on any empty grid cell to place the currently selected gate. The default gate is NOT, but this changes when you select a gate from the palette.
+
+### Click to Cycle Gates
+
+Click on an existing gate to cycle through all available gate types:
+NOT → AND → OR → NAND → NOR → XOR → XNOR → BUF → NOT ...
+
+This makes it easy to experiment with different gates without deleting and re-adding.
+
+### Drag and Drop from Palette
+
+1. Create a gate palette: `const palette = C.Circuit.Editor.createPalette()`
+2. Drag any gate from the palette
+3. Drop it onto the circuit grid to place it
+
+The dragged gate becomes the current gate for click-to-place operations.
+
+### Hover Highlighting
+
+As you move your mouse over the circuit board, the current row and column are highlighted in green, making it easy to see where gates will be placed.
+
+### Lock/Unlock Circuit
+
+Click the 🔓 lock icon to toggle circuit editing:
+- **Unlocked (🔓)**: Full editing capabilities
+- **Locked (🔒)**: Prevents accidental changes while viewing
+
+### Undo/Redo
+
+Every gate placement and removal is tracked in history:
+- Click **⟲** to undo the last change
+- Click **⟳** to redo an undone change
+
+Buttons are automatically enabled/disabled based on history availability.
+
+### Evaluate Circuit
+
+Click the **RUN** button to evaluate the circuit and see the results instantly displayed below the circuit board.
 
 ## API Reference
 
