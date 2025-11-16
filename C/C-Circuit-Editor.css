@@ -1,0 +1,330 @@
+/*
+
+	Copyright © 2025, Classical Circuit Simulator (C.js)
+	Based on Q.js by Stewart Smith
+
+*/
+@charset "utf-8";
+
+
+
+
+.C-circuit,
+.C-circuit-palette {
+
+	position: relative;
+	width: 100%;
+}
+.C-circuit-palette {
+
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	line-height: 0;
+}
+.C-circuit-palette > div {
+
+	display: inline-block;
+	position: relative;
+	width:  5rem;
+	height: 4rem;
+	margin: 0.5rem;
+	border: 2px solid var( --C-color-green );
+	border-radius: 0.5rem;
+	text-align: center;
+	line-height: 4rem;
+	font-weight: bold;
+	cursor: pointer;
+	background: var( --C-color-white );
+}
+.C-circuit-palette > div:hover {
+
+	background: var( --C-color-newsprint );
+}
+
+
+.C-circuit {
+
+	margin: 1rem 0 2rem 0;
+	font-family: var( --C-font-family-sans );
+}
+.C-circuit-board-foreground {
+
+	line-height: 3.85rem;
+	width: auto;
+}
+
+
+
+
+    /***************/
+   /*             */
+  /*   Toolbar   */
+ /*             */
+/***************/
+
+
+.C-circuit-toolbar {
+
+	display: block;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	margin-bottom: 0.5rem;
+
+	box-sizing: border-box;
+	display: grid;
+	grid-auto-columns: 3.6rem;
+	grid-auto-rows:    3.0rem;
+	grid-auto-flow: column;
+
+}
+.C-circuit-button {
+
+	position: relative;
+	display: inline-block;
+	width:  3.6rem;
+	height: 3rem;
+
+	border-top: 1px solid hsl(
+		var( --C-color-background-hue ),
+		var( --C-color-background-saturation ),
+		100%
+	);
+	border-right: 1px solid hsl(
+		var( --C-color-background-hue ),
+		var( --C-color-background-saturation ),
+		90%
+	);
+	border-bottom: 1px solid hsl(
+		var( --C-color-background-hue ),
+		var( --C-color-background-saturation ),
+		85%
+	);
+	border-left: 1px solid hsl(
+		var( --C-color-background-hue ),
+		var( --C-color-background-saturation ),
+		97%
+	);
+	background: var( --C-color-background );
+	color: hsl(
+		var( --C-color-background-hue ),
+		var( --C-color-background-saturation ),
+		30%
+	);
+	text-shadow: 1px  1px 0 rgba( 255, 255, 255, 1 );
+	line-height: 2.9rem;
+	text-align: center;
+	cursor: pointer;
+	overflow: hidden;
+	font-weight: 900;
+	font-size: 1.4rem;
+}
+.C-circuit-toolbar .C-circuit-button:first-child {
+
+	border-top-left-radius:    0.5rem;
+	border-bottom-left-radius: 0.5rem;
+}
+.C-circuit-toolbar .C-circuit-button:last-child {
+
+	border-top-right-radius:    0.5rem;
+	border-bottom-right-radius: 0.5rem;
+}
+.C-circuit-locked .C-circuit-button,
+.C-circuit-button[C-disabled] {
+
+	color: hsl(
+		var( --C-color-background-hue ),
+		var( --C-color-background-saturation ),
+		85%
+	);
+	cursor: not-allowed;
+}
+.C-circuit-locked .C-circuit-toggle-lock {
+
+	color: inherit;
+	cursor: pointer;
+}
+
+
+
+
+.C-circuit-board-container {
+
+	position: relative;
+	margin: 0 0 2rem 0;
+	width:  100%;
+	max-height: 60vh;
+	overflow: scroll;
+	border: 2px solid var( --C-color-titanium );
+	border-radius: 0.5rem;
+	background: var( --C-color-white );
+}
+.C-circuit-board {
+
+	position: relative;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+.C-circuit-board-foreground,
+.C-circuit-board-background {
+
+	box-sizing: border-box;
+	display: grid;
+	grid-auto-rows:    4rem;
+	grid-auto-columns: 4rem;
+	grid-auto-flow: column;
+}
+.C-circuit-board-foreground,
+.C-circuit-board-background {
+
+	position: relative;
+	top:  0;
+	left: 0;
+	width:  100%;
+	height: 100%;
+}
+
+
+
+
+    /***************/
+   /*             */
+  /*   Headers   */
+ /*             */
+/***************/
+
+
+.C-circuit-header {
+
+	position: relative;
+	display: inline-block;
+	font-size: 1.2rem;
+	font-weight: 600;
+	color: var( --C-color-slate );
+	text-align: center;
+}
+.C-circuit-register-label,
+.C-circuit-moment-label {
+
+	background: var( --C-color-newsprint );
+}
+.C-circuit-register-label {
+
+	grid-column-start: 1;
+	padding-right: 0.5rem;
+	text-align: right;
+}
+.C-circuit-moment-label {
+
+	grid-row-start: 1;
+}
+.C-circuit-input {
+
+	grid-column-start: 2;
+	background: var( --C-color-chalk );
+	font-family: var( --C-font-family-mono );
+}
+
+
+
+
+    /*****************/
+   /*               */
+  /*   Operations  */
+ /*               */
+/*****************/
+
+
+.C-circuit-operation {
+
+	position: relative;
+	width:  4rem;
+	height: 4rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 1.2rem;
+	font-weight: bold;
+	border: 2px solid var( --C-color-green );
+	border-radius: 0.5rem;
+	background: var( --C-color-white );
+	cursor: pointer;
+	transition: all 0.2s;
+}
+.C-circuit-operation:hover {
+
+	background: var( --C-color-newsprint );
+	transform: scale( 1.05 );
+	box-shadow: 0 0.2rem 0.4rem rgba( 0, 0, 0, 0.2 );
+}
+
+
+
+
+    /**************/
+   /*            */
+  /*   Wires    */
+ /*            */
+/**************/
+
+
+.C-circuit-register-wire {
+
+	position: absolute;
+	top: 50%;
+	left: 0;
+	right: 0;
+	height: 2px;
+	background: var( --C-color-slate );
+	z-index: -1;
+}
+
+
+
+
+    /**************/
+   /*            */
+  /*   Gates    */
+ /*            */
+/**************/
+
+
+.C-gate--not {
+
+	background: var( --C-color-red );
+	color: white;
+}
+.C-gate--and,
+.C-gate--nand {
+
+	background: var( --C-color-blue );
+	color: white;
+}
+.C-gate--or,
+.C-gate--nor {
+
+	background: var( --C-color-green );
+	color: white;
+}
+.C-gate--xor,
+.C-gate--xnor {
+
+	background: var( --C-color-orange );
+	color: white;
+}
+.C-gate--buffer,
+.C-gate--identity {
+
+	background: var( --C-color-titanium );
+	color: white;
+}
+.C-gate--probe {
+
+	background: var( --C-color-yellow );
+	color: black;
+}

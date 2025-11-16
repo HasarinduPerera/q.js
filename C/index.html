@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>C.js - Classical Circuit Simulator</title>
+
+	<link rel="stylesheet" href="C.css">
+	<link rel="stylesheet" href="C-Circuit-Editor.css">
+
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+		html {
+			font-size: 10px;
+		}
+		body {
+			font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+			font-size: 1.6rem;
+			line-height: 1.6;
+			color: #333;
+			background: #f5f5f5;
+			padding: 2rem;
+		}
+		.container {
+			max-width: 1200px;
+			margin: 0 auto;
+			background: white;
+			padding: 3rem;
+			border-radius: 1rem;
+			box-shadow: 0 0.2rem 1rem rgba(0, 0, 0, 0.1);
+		}
+		h1 {
+			color: #2c7a3f;
+			margin-bottom: 1rem;
+			font-size: 3.6rem;
+		}
+		h2 {
+			color: #2c7a3f;
+			margin: 2rem 0 1rem 0;
+			font-size: 2.4rem;
+		}
+		p {
+			margin-bottom: 1rem;
+		}
+		.description {
+			background: #e8f5e9;
+			padding: 1.5rem;
+			border-left: 4px solid #2c7a3f;
+			margin-bottom: 2rem;
+			border-radius: 0.5rem;
+		}
+		.example {
+			margin: 2rem 0;
+			padding: 1.5rem;
+			background: #f9f9f9;
+			border-radius: 0.5rem;
+		}
+		.example h3 {
+			font-size: 1.8rem;
+			margin-bottom: 1rem;
+			color: #2c7a3f;
+		}
+		pre {
+			background: #272822;
+			color: #f8f8f2;
+			padding: 1.5rem;
+			border-radius: 0.5rem;
+			overflow-x: auto;
+			font-size: 1.4rem;
+			margin: 1rem 0;
+		}
+		code {
+			background: #f4f4f4;
+			padding: 0.2rem 0.5rem;
+			border-radius: 0.3rem;
+			font-family: 'Courier New', monospace;
+		}
+		#palette-container {
+			margin: 2rem 0;
+			padding: 1.5rem;
+			background: #f9f9f9;
+			border-radius: 0.5rem;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h1>C.js - Classical Circuit Simulator</h1>
+
+		<div class="description">
+			<p><strong>C.js</strong> is a classical (digital) circuit simulator inspired by the quantum circuit simulator Q.js. Build and test logic circuits using classical logic gates like AND, OR, NOT, NAND, NOR, XOR, and more!</p>
+		</div>
+
+		<h2>Available Gates</h2>
+		<div id="palette-container"></div>
+
+		<h2>Example Circuits</h2>
+
+		<div class="example">
+			<h3>Example 1: Simple NOT Gate</h3>
+			<p>This circuit demonstrates a NOT gate inverting a bit value.</p>
+			<div id="circuit1"></div>
+		</div>
+
+		<div class="example">
+			<h3>Example 2: AND Gate</h3>
+			<p>This circuit demonstrates an AND gate with two inputs.</p>
+			<div id="circuit2"></div>
+		</div>
+
+		<div class="example">
+			<h3>Example 3: XOR Gate</h3>
+			<p>This circuit demonstrates an XOR gate.</p>
+			<div id="circuit3"></div>
+		</div>
+
+		<h2>Creating Circuits Programmatically</h2>
+
+		<div class="example">
+			<h3>Creating a Circuit</h3>
+			<pre>// Create a circuit with 3 bits and 5 time steps
+const circuit = new C.Circuit(3, 5)
+
+// Set input bit values
+circuit.bits[0] = C.Bit.ONE
+circuit.bits[1] = C.Bit.ZERO
+circuit.bits[2] = C.Bit.ONE
+
+// Add gates
+circuit.set$('NOT', 1, 1)   // NOT gate on bit 1 at moment 1
+circuit.set$('AND', 2, 1)   // AND gate on bit 1 at moment 2
+
+// Evaluate the circuit
+circuit.evaluate$()
+
+// Get results
+console.log(circuit.report$())</pre>
+		</div>
+
+		<div class="example">
+			<h3>Using Text-Based Circuit Creation</h3>
+			<pre>// Create a circuit from text
+const circuit = C`
+	NOT-AND-I
+	I---OR--I
+	I---I---XOR
+`
+
+// Create a DOM editor for it
+const editor = circuit.toDom()
+document.body.appendChild(editor)</pre>
+		</div>
+
+		<h2>Interactive Editor</h2>
+		<p>Click the <strong>RUN</strong> button to evaluate the circuit and see the results!</p>
+		<div id="interactive-circuit"></div>
+
+		<h2>API Reference</h2>
+		<div class="description">
+			<p><strong>C.Bit</strong> - Represents a classical bit (0 or 1)</p>
+			<p><strong>C.Gate</strong> - Represents a logic gate operation</p>
+			<p><strong>C.Circuit</strong> - Represents a complete circuit with bits and gates</p>
+			<p><strong>C.Circuit.Editor</strong> - Interactive DOM-based circuit editor</p>
+		</div>
+	</div>
+
+	<!-- Load C.js libraries -->
+	<script src="C.js"></script>
+	<script src="C-Bit.js"></script>
+	<script src="C-Gate.js"></script>
+	<script src="C-History.js"></script>
+	<script src="C-Circuit.js"></script>
+	<script src="C-Circuit-Editor.js"></script>
+
+	<script>
+		// Create gate palette
+		const paletteEl = C.Circuit.Editor.createPalette()
+		document.getElementById('palette-container').appendChild(paletteEl)
+
+		// Example 1: NOT gate
+		const circuit1 = new C.Circuit(1, 2)
+		circuit1.bits[0] = C.Bit.ONE
+		circuit1.set$('NOT', 1, 1)
+		circuit1.toDom(document.getElementById('circuit1'))
+
+		// Example 2: AND gate
+		const circuit2 = new C.Circuit(2, 2)
+		circuit2.bits[0] = C.Bit.ONE
+		circuit2.bits[1] = C.Bit.ONE
+		circuit2.set$('AND', 1, 1)
+		circuit2.toDom(document.getElementById('circuit2'))
+
+		// Example 3: XOR gate
+		const circuit3 = new C.Circuit(2, 2)
+		circuit3.bits[0] = C.Bit.ONE
+		circuit3.bits[1] = C.Bit.ZERO
+		circuit3.set$('XOR', 1, 1)
+		circuit3.toDom(document.getElementById('circuit3'))
+
+		// Interactive circuit
+		const interactiveCircuit = new C.Circuit(4, 6)
+		interactiveCircuit.bits[0] = C.Bit.ONE
+		interactiveCircuit.bits[1] = C.Bit.ONE
+		interactiveCircuit.bits[2] = C.Bit.ZERO
+		interactiveCircuit.bits[3] = C.Bit.ONE
+		interactiveCircuit.set$('NOT', 1, 1)
+		interactiveCircuit.set$('AND', 2, 2)
+		interactiveCircuit.set$('OR', 3, 3)
+		interactiveCircuit.set$('XOR', 4, 4)
+		interactiveCircuit.toDom(document.getElementById('interactive-circuit'))
+
+		// Make circuits available in console
+		window.circuit1 = circuit1
+		window.circuit2 = circuit2
+		window.circuit3 = circuit3
+		window.interactiveCircuit = interactiveCircuit
+
+		console.log('C.js Classical Circuit Simulator loaded!')
+		console.log('Try accessing circuits via: circuit1, circuit2, circuit3, or interactiveCircuit')
+	</script>
+</body>
+</html>

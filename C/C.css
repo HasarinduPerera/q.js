@@ -1,0 +1,250 @@
+/*
+
+	Copyright © 2025, Classical Circuit Simulator (C.js)
+	Based on Q.js by Stewart Smith
+
+*/
+@charset "utf-8";
+
+
+
+
+svg, :root {
+
+
+	    /**************/
+	   /*            */
+	  /*   Colors   */
+	 /*            */
+	/**************/
+
+
+	/*  Base color (green for classical circuits)  */
+
+	--C-color-base-hue:       120;
+	--C-color-base-saturation: 70%;
+	--C-color-base-lightness:  35%;
+
+
+	/*  Red  */
+
+	--C-color-red-hue: 0;
+	--C-color-red-saturation: 85%;
+	--C-color-red-lightness:  45%;
+	--C-color-red: hsl(
+		var( --C-color-red-hue ),
+		var( --C-color-red-saturation ),
+		var( --C-color-red-lightness )
+	);
+
+
+	/*  Orange  */
+
+	--C-color-orange-hue: 30;
+	--C-color-orange-saturation: 85%;
+	--C-color-orange-lightness:  50%;
+	--C-color-orange: hsl(
+		var( --C-color-orange-hue ),
+		var( --C-color-orange-saturation ),
+		var( --C-color-orange-lightness )
+	);
+
+
+	/*  Yellow  */
+
+	--C-color-yellow-hue: 50;
+	--C-color-yellow-saturation: 90%;
+	--C-color-yellow-lightness:  50%;
+	--C-color-yellow: hsl(
+		var( --C-color-yellow-hue ),
+		var( --C-color-yellow-saturation ),
+		var( --C-color-yellow-lightness )
+	);
+
+
+	/*  Green  */
+
+	--C-color-green-hue: var( --C-color-base-hue );
+	--C-color-green-saturation: var( --C-color-base-saturation );
+	--C-color-green-lightness: var( --C-color-base-lightness );
+	--C-color-green: hsl(
+		var( --C-color-green-hue ),
+		var( --C-color-green-saturation ),
+		var( --C-color-green-lightness )
+	);
+
+
+	/*  Blue  */
+
+	--C-color-blue-hue: 210;
+	--C-color-blue-saturation: 85%;
+	--C-color-blue-lightness:  40%;
+	--C-color-blue: hsl(
+		var( --C-color-blue-hue ),
+		var( --C-color-blue-saturation ),
+		var( --C-color-blue-lightness )
+	);
+
+
+	/*  Grayscale  */
+
+	--C-color-white:     #FFFFFF;
+	--C-color-chalk:     #F9F9F9;
+	--C-color-newsprint: #F3F3F3;
+	--C-color-titanium:  #CCCCCC;
+	--C-color-slate:     #777777;
+	--C-color-charcoal:  #333333;
+	--C-color-black:     #000000;
+
+
+	/*  Background  */
+
+	--C-color-background-hue: var( --C-color-base-hue );
+	--C-color-background-saturation: 15%;
+	--C-color-background-lightness:  98%;
+	--C-color-background: hsl(
+		var( --C-color-background-hue ),
+		var( --C-color-background-saturation ),
+		var( --C-color-background-lightness )
+	);
+
+
+	/*  Misc  */
+
+	--C-text-color: hsl(
+		var( --C-color-base-hue ),
+		 5%,
+		35%
+	);
+	--C-text-code-comment-color: rgba( 0, 0, 0, 0.4 );
+	--C-text-code-output-color:  rgba( 0, 0, 0, 1 );
+
+	--C-selection-color: var( --C-color-black );
+	--C-selection-background-color: var( --C-color-yellow );
+
+	--C-hyperlink-internal-color: var( --C-color-green );
+	--C-hyperlink-external-color: var( --C-text-color );
+
+	--C-background-callout-color: var( --C-color-white );
+
+	--C-svg-fill-color: var( --C-text-color );
+
+
+
+
+	/*  Fonts  */
+
+	--C-font-family-serif:   'Source Serif Pro', 'Roboto Slab', 'Georgia', serif;
+	--C-font-family-sans:    'SF Pro Text', system-ui, -apple-system, 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+	--C-font-family-mono:    'Roboto Mono', 'Source Code Pro', 'Menlo', 'Courier New', monospace;
+	--C-font-family-symbols: 'Georgia', serif;
+}
+
+
+
+
+    /*******************/
+   /*                 */
+  /*   Interactive   */
+ /*                 */
+/*******************/
+
+
+.C-input,
+.C-circuit-text-input {
+
+	margin: 1.5rem 0 0 0 !important;
+	outline: none !important;
+	border:  none !important;
+	border-radius: 1.2rem !important;
+	box-shadow:
+		 0.2rem  0.2rem 0.2rem rgba( 0, 0, 0, 0.15 ) inset,
+		-0.2rem -0.2rem 0.2rem rgba( 255, 255, 255, 1 ) inset;
+
+	background: linear-gradient(
+		0.375turn,
+		rgba( 255, 255, 255, 1.0 ),
+		rgba( 255, 255, 255, 0.2 )
+	) !important;
+}
+.C-input,
+.C-text-input {
+
+	display: block;
+	font-size: 1.6rem;
+	font-family: var( --C-font-family-sans );
+	font-weight: 400;
+	padding: 1.2rem 2rem !important;
+	width: 100%;
+}
+.C-input {
+
+	margin-top: 0 !important;
+}
+.C-button,
+.C-circuit-button {
+
+	display: inline-block;
+	outline: none !important;
+	border:  none !important;
+	border-radius: 1.2rem;
+	padding: 0.6rem 1.8rem;
+	font-size: 1.6rem;
+	font-family: var( --C-font-family-sans );
+	font-weight: 600;
+	color: var( --C-color-white );
+	background: linear-gradient(
+		0.375turn,
+		var( --C-color-green ),
+		hsl( var( --C-color-base-hue ), 70%, 45% )
+	);
+	box-shadow:
+		 0.2rem  0.2rem 0.4rem rgba( 0, 0, 0, 0.2 ),
+		-0.1rem -0.1rem 0.2rem rgba( 255, 255, 255, 0.3 );
+	cursor: pointer;
+	user-select: none;
+	transition: all 0.2s;
+}
+.C-button:hover,
+.C-circuit-button:hover {
+
+	background: linear-gradient(
+		0.375turn,
+		hsl( var( --C-color-base-hue ), 75%, 40% ),
+		hsl( var( --C-color-base-hue ), 75%, 50% )
+	);
+}
+.C-button:active,
+.C-circuit-button:active {
+
+	box-shadow:
+		 0.1rem  0.1rem 0.2rem rgba( 0, 0, 0, 0.2 ) inset,
+		-0.1rem -0.1rem 0.1rem rgba( 255, 255, 255, 0.3 ) inset;
+}
+.C-circuit-button[C-disabled] {
+
+	opacity: 0.3;
+	cursor: default;
+	pointer-events: none;
+}
+
+
+
+
+    /***************/
+   /*             */
+  /*   Results   */
+ /*             */
+/***************/
+
+
+.C-circuit-results {
+
+	margin: 2rem 0;
+	padding: 2rem;
+	background: var( --C-color-newsprint );
+	border-radius: 0.8rem;
+	font-family: var( --C-font-family-mono );
+	font-size: 1.4rem;
+	white-space: pre-wrap;
+}
