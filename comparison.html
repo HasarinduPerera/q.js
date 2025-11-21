@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Q.js vs C.js Comparison</title>
+    <link rel="stylesheet" href="Q/Q.css">
+    <link rel="stylesheet" href="Q/Q-Circuit-Editor.css">
+    <link rel="stylesheet" href="C/C.css">
+    <link rel="stylesheet" href="C/C-Circuit-Editor.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            padding: 2rem;
+            background: #f5f5f5;
+        }
+
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            grid-column: 1 / -1;
+            text-align: center;
+            color: #333;
+        }
+
+        h2 {
+            color: #666;
+            margin-top: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="comparison">
+        <h1>Q.js (Quantum) vs C.js (Classical) UI Comparison</h1>
+
+        <div class="panel">
+            <h2>Q.js - Quantum Circuit</h2>
+            <div id="quantum-palette"></div>
+            <div id="quantum-circuit"></div>
+        </div>
+
+        <div class="panel">
+            <h2>C.js - Classical Circuit</h2>
+            <div id="classical-palette"></div>
+            <div id="classical-circuit"></div>
+        </div>
+    </div>
+
+    <!-- Load Q.js -->
+    <script src="Q/Q.js"></script>
+    <script src="Q/Q-ComplexNumber.js"></script>
+    <script src="Q/Q-Matrix.js"></script>
+    <script src="Q/Q-Qubit.js"></script>
+    <script src="Q/Q-Gate.js"></script>
+    <script src="Q/Q-History.js"></script>
+    <script src="Q/Q-Circuit.js"></script>
+    <script src="Q/Q-Circuit-Editor.js"></script>
+
+    <!-- Load C.js -->
+    <script src="C/C.js"></script>
+    <script src="C/C-Bit.js"></script>
+    <script src="C/C-Gate.js"></script>
+    <script src="C/C-History.js"></script>
+    <script src="C/C-Circuit.js"></script>
+    <script src="C/C-AnimatedBeam.js"></script>
+    <script src="C/C-Circuit-Editor.js"></script>
+
+    <script>
+        // Create Q.js (quantum) palette and circuit
+        Q.Circuit.Editor.createPalette(document.getElementById('quantum-palette'))
+        const qCircuit = Q`
+			H  X#0
+			I  X#1
+		`
+        qCircuit.toDom(document.getElementById('quantum-circuit'))
+
+        // Create C.js (classical) palette and circuit
+        C.Circuit.Editor.createPalette(document.getElementById('classical-palette'))
+        const cCircuit = new C.Circuit(2, 2)
+        cCircuit.bits[0] = C.Bit.ONE
+        cCircuit.bits[1] = C.Bit.ONE
+        cCircuit.set$('NOT', 1, 1)
+        cCircuit.set$('AND', 2, 1, 2)
+        cCircuit.toDom(document.getElementById('classical-circuit'))
+    </script>
+</body>
+
+</html>

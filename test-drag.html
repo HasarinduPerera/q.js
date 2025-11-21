@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>C.js Drag Test</title>
+    <link rel="stylesheet" href="C/C.css">
+    <link rel="stylesheet" href="C/C-Circuit-Editor.css">
+    <style>
+        body {
+            padding: 2rem;
+            font-family: sans-serif;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .test-info {
+            background: #f0f0f0;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>C.js Drag and Drop Test</h1>
+
+    <div class="test-info">
+        <h3>Instructions:</h3>
+        <ol>
+            <li>Try clicking and dragging a gate from the palette below</li>
+            <li>Drag it to the circuit board</li>
+            <li>Release to place it</li>
+            <li>Check browser console (F12) for any errors</li>
+        </ol>
+    </div>
+
+    <h2>Gate Palette</h2>
+    <div id="palette"></div>
+
+    <h2>Circuit Board</h2>
+    <div id="circuit"></div>
+
+    <h2>Results</h2>
+    <div id="results"
+        style="margin-top: 1rem; padding: 1rem; background: #f9f9f9; border-radius: 4px; font-family: monospace;"></div>
+
+    <!-- Load C.js -->
+    <script src="C/C.js"></script>
+    <script src="C/C-Bit.js"></script>
+    <script src="C/C-Gate.js"></script>
+    <script src="C/C-History.js"></script>
+    <script src="C/C-Circuit.js"></script>
+    <script src="C/C-AnimatedBeam.js"></script>
+    <script src="C/C-Circuit-Editor.js"></script>
+
+    <script>
+        console.log('=== C.js Drag Test ===')
+
+        // Create palette
+        console.log('Creating palette...')
+        try {
+            const paletteEl = C.Circuit.Editor.createPalette()
+            console.log('Palette created:', paletteEl)
+            document.getElementById('palette').appendChild(paletteEl)
+            console.log('Palette appended to DOM')
+        } catch (e) {
+            console.error('Error creating palette:', e)
+        }
+
+        // Create circuit
+        console.log('Creating circuit...')
+        try {
+            const circuit = new C.Circuit(3, 4)
+            circuit.bits[0] = C.Bit.ONE
+            circuit.bits[1] = C.Bit.ZERO
+            circuit.bits[2] = C.Bit.ONE
+            console.log('Circuit created:', circuit)
+
+            circuit.toDom(document.getElementById('circuit'))
+            console.log('Circuit rendered to DOM')
+        } catch (e) {
+            console.error('Error creating circuit:', e)
+        }
+
+        // Test event listeners
+        console.log('C.Circuit.Editor.onPointerPress:', typeof C.Circuit.Editor.onPointerPress)
+        console.log('C.Circuit.Editor.onPointerMove:', typeof C.Circuit.Editor.onPointerMove)
+        console.log('C.Circuit.Editor.onPointerRelease:', typeof C.Circuit.Editor.onPointerRelease)
+
+        // Listen for circuit evaluation to show results
+        window.addEventListener('C.Circuit.evaluate completed', function (event) {
+            console.log('Circuit evaluated!', event.detail)
+            const resultsDiv = document.getElementById('results')
+            if (resultsDiv && event.detail.circuit) {
+                resultsDiv.innerHTML = '<h3>Evaluation Results:</h3><pre>' + event.detail.circuit.report$() + '</pre>'
+            }
+        })
+
+        console.log('=== Setup complete - try dragging a gate! ===')
+    </script>
+</body>
+
+</html>

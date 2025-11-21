@@ -1,0 +1,199 @@
+/*
+
+	Copyright © 2025, Classical Circuit Simulator (C.js)
+	Animated Beam Styles
+
+*/
+@charset "utf-8";
+
+
+
+
+/* Animated Beam Container */
+
+.C-animated-beam {
+
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+	z-index: 5;
+	overflow: visible;
+}
+
+
+/* Beam Path Styling */
+
+.C-animated-beam path {
+
+	vector-effect: non-scaling-stroke;
+}
+
+
+/* Wire Connectors */
+
+.C-wire-connector {
+
+	position: absolute;
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	background: var(--C-color-white);
+	border: 2px solid var(--C-color-green);
+	z-index: 10;
+	box-shadow: 0 0.1rem 0.3rem rgba(0, 0, 0, 0.2);
+	transition: all 0.3s ease;
+}
+
+.C-wire-connector--input {
+
+	background: var(--C-color-chalk);
+}
+
+.C-wire-connector--output {
+
+	background: var(--C-color-green);
+	border-color: var(--C-color-green);
+}
+
+.C-wire-connector--active {
+
+	background: var(--C-color-green);
+	box-shadow: 0 0 0.8rem var(--C-color-green);
+	transform: scale(1.2);
+}
+
+.C-wire-connector[data-value="0"] {
+
+	background: var(--C-color-titanium);
+	border-color: var(--C-color-titanium);
+}
+
+.C-wire-connector[data-value="1"] {
+
+	background: var(--C-color-green);
+	border-color: var(--C-color-green);
+}
+
+
+/* Intermediate Wires */
+
+.C-circuit-intermediate-wire {
+
+	position: absolute;
+	left: 0;
+	right: 0;
+	height: 1px;
+	background: var(--C-color-titanium);
+	opacity: 0.4;
+	z-index: 0;
+	pointer-events: none;
+}
+
+
+/* Multi-Wire Gate Layout */
+
+.C-circuit-operation--multi-wire {
+
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	min-height: 8rem;
+	height: calc(var(--wire-span, 2) * 4rem);
+	border-left: 3px solid;
+	border-right: 3px solid;
+	border-color: inherit;
+	background: inherit;
+}
+
+.C-circuit-operation--multi-wire::before,
+.C-circuit-operation--multi-wire::after {
+	content: '';
+	position: absolute;
+	left: 0;
+	right: 0;
+	height: 3px;
+	background: currentColor;
+}
+
+.C-circuit-operation--multi-wire::before {
+	top: 0;
+}
+
+.C-circuit-operation--multi-wire::after {
+	bottom: 0;
+}
+
+.C-gate-inputs,
+.C-gate-outputs {
+
+	position: absolute;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.C-gate-inputs {
+
+	left: -15px;
+	top: 50%;
+	transform: translateY(-50%);
+}
+
+.C-gate-outputs {
+
+	right: -15px;
+	top: 50%;
+	transform: translateY(-50%);
+}
+
+.C-gate-core {
+
+	position: relative;
+	z-index: 2;
+}
+
+
+/* Animation Pulse Effect for Gate Processing */
+
+@keyframes gate-pulse {
+
+	0%,
+	100% {
+		transform: scale(1);
+		box-shadow: 0 0.2rem 0.4rem rgba(0, 0, 0, 0.2);
+	}
+
+	50% {
+		transform: scale(1.05);
+		box-shadow: 0 0.3rem 0.8rem rgba(0, 200, 0, 0.4);
+	}
+}
+
+.C-circuit-operation--processing {
+
+	animation: gate-pulse 0.6s ease-in-out;
+}
+
+
+/* Beam Animation */
+
+@keyframes beam-flow {
+	0% {
+		stroke-dashoffset: 100;
+	}
+
+	100% {
+		stroke-dashoffset: 0;
+	}
+}
+
+.C-animated-beam path {
+
+	stroke-dasharray: 10 5;
+	animation: beam-flow 1s linear infinite;
+}

@@ -1,10 +1,96 @@
 /*
 
-	Copyright © 2025, Classical Circuit Simulator (C.js)
-	Based on Q.js by Stewart Smith
+	Copyright © 2019–2020, Stewart Smith. See LICENSE for details.
 
 */
 @charset "utf-8";
+
+
+
+
+
+
+
+
+
+/*
+
+	Z indices:
+
+	Clipboard   =100
+	Selected op   10
+	Operation      0
+	Shadow       -10
+	Background   -20
+
+
+
+
+
+	Circuit	
+
+	   Menu     Moments
+	  ╭───────┬───┬───┬───┬───╮
+	  │ ≡   ↘ │ 1 │ 2 │ 3 │ + │ Add moment
+	  ├───┬───┼───┼───┼───┼───╯
+	R │ 0 │|0⟩│ H │ C0│ X │ -
+	e ├───┼───┼───┼───┼───┤
+	g │ 1 │|0⟩│ I │ C1│ X │ -
+	s ├───┼───┴───┴───┴───┘
+      │ + │ -   -   -   -
+	  ╰───╯
+	    Add
+	    register
+
+
+	Circuit Palette
+
+	╭───────────────────┬───╮
+	│ H X Y Z S T π M … │ @ │
+	╰───────────────────┴───╯
+
+
+	Circuit clipboard
+
+	 ┌───────────────┐
+	▟│ ┌───┬───────┐ │
+	█│ │ H │ X#0.0 │ │
+	█│ ├───┼───────┤ │
+	█│ │ I │ X#0.1 │ │
+	█│ └───┴───────┘ │
+	█└───────────────┘
+	███████████████▛
+
+
+
+    ◢◣
+  ◢■■■■◣
+◢■■■■■■■■◣
+◥■■■■■■■■◤
+  ◥■■■■◤
+    ◥◤
+
+
+    ◢■■■■■■◤
+  ◢◤    ◢◤
+◢■■■■■■◤
+
+
+ ───────────
+  ╲ ╱  ╱  ╱
+   ╳  ╱  ╱
+  ╱ ╲╱  ╱
+ ───────
+
+
+  ─────⦢
+ ╱    ╱
+⦣─────
+
+
+*/
+
+
 
 
 
@@ -15,6 +101,7 @@
 	position: relative;
 	width: 100%;
 }
+
 .C-circuit-palette {
 
 	-moz-user-select: none;
@@ -23,32 +110,22 @@
 	user-select: none;
 	line-height: 0;
 }
-.C-circuit-palette > div {
+
+.C-circuit-palette>div {
 
 	display: inline-block;
 	position: relative;
-	width:  5rem;
+	width: 4rem;
 	height: 4rem;
-	margin: 0.5rem;
-	border: 2px solid var( --C-color-green );
-	border-radius: 0.5rem;
-	text-align: center;
-	line-height: 4rem;
-	font-weight: bold;
-	cursor: pointer;
-	background: var( --C-color-white );
-}
-.C-circuit-palette > div:hover {
-
-	background: var( --C-color-newsprint );
 }
 
 
 .C-circuit {
 
 	margin: 1rem 0 2rem 0;
-	font-family: var( --C-font-family-sans );
+	/*border-top: 2px solid hsl( 0, 0%, 50% );*/
 }
+
 .C-circuit-board-foreground {
 
 	line-height: 3.85rem;
@@ -58,10 +135,12 @@
 
 
 
-    /***************/
-   /*             */
-  /*   Toolbar   */
- /*             */
+
+
+/***************/
+/*             */
+/*   Toolbar   */
+/*             */
 /***************/
 
 
@@ -77,71 +156,78 @@
 	box-sizing: border-box;
 	display: grid;
 	grid-auto-columns: 3.6rem;
-	grid-auto-rows:    3.0rem;
+	grid-auto-rows: 3.0rem;
 	grid-auto-flow: column;
 
 }
+
 .C-circuit-button {
 
 	position: relative;
 	display: inline-block;
-	width:  3.6rem;
+	/*margin: 0 0.5rem 0.5rem 0;*/
+	width: 3.6rem;
 	height: 3rem;
+	/*	box-shadow: 
+		-0.1rem -0.1rem 0 rgba( 255, 255, 255, 0.8 ),
+		 0.1rem  0.1rem 0.1rem rgba( 0, 0, 0, 0.35 );*/
 
-	border-top: 1px solid hsl(
-		var( --C-color-background-hue ),
-		var( --C-color-background-saturation ),
-		100%
-	);
-	border-right: 1px solid hsl(
-		var( --C-color-background-hue ),
-		var( --C-color-background-saturation ),
-		90%
-	);
-	border-bottom: 1px solid hsl(
-		var( --C-color-background-hue ),
-		var( --C-color-background-saturation ),
-		85%
-	);
-	border-left: 1px solid hsl(
-		var( --C-color-background-hue ),
-		var( --C-color-background-saturation ),
-		97%
-	);
-	background: var( --C-color-background );
-	color: hsl(
-		var( --C-color-background-hue ),
-		var( --C-color-background-saturation ),
-		30%
-	);
-	text-shadow: 1px  1px 0 rgba( 255, 255, 255, 1 );
+	border-top: 1px solid hsl(var(--C-color-background-hue),
+			var(--C-color-background-saturation),
+			100%);
+	border-right: 1px solid hsl(var(--C-color-background-hue),
+			var(--C-color-background-saturation),
+			90%);
+	border-bottom: 1px solid hsl(var(--C-color-background-hue),
+			var(--C-color-background-saturation),
+			85%);
+	border-left: 1px solid hsl(var(--C-color-background-hue),
+			var(--C-color-background-saturation),
+			97%);
+	background: var(--C-color-background);
+	/*	background: 
+		var( --C-color-background )
+		linear-gradient(
+
+			0.4turn,
+			
+			rgba( 0, 0, 0, 0.02 ),
+			rgba( 255, 255, 255, 0.1 )
+		);*/
+	color: hsl(var(--C-color-background-hue),
+			var(--C-color-background-saturation),
+			30%);
+	text-shadow: 1px 1px 0 rgba(255, 255, 255, 1);
+	/*border-radius: 0.5rem;*/
+	/*border-radius: 100%;*/
 	line-height: 2.9rem;
 	text-align: center;
 	cursor: pointer;
 	overflow: hidden;
 	font-weight: 900;
-	font-size: 1.4rem;
 }
+
 .C-circuit-toolbar .C-circuit-button:first-child {
 
-	border-top-left-radius:    0.5rem;
+	border-top-left-radius: 0.5rem;
 	border-bottom-left-radius: 0.5rem;
 }
+
 .C-circuit-toolbar .C-circuit-button:last-child {
 
-	border-top-right-radius:    0.5rem;
+	border-top-right-radius: 0.5rem;
 	border-bottom-right-radius: 0.5rem;
 }
+
 .C-circuit-locked .C-circuit-button,
 .C-circuit-button[C-disabled] {
 
-	color: hsl(
-		var( --C-color-background-hue ),
-		var( --C-color-background-saturation ),
-		85%
-	);
+	color: hsl(var(--C-color-background-hue),
+			var(--C-color-background-saturation),
+			85%);
 	cursor: not-allowed;
 }
+
 .C-circuit-locked .C-circuit-toggle-lock {
 
 	color: inherit;
@@ -155,13 +241,12 @@
 
 	position: relative;
 	margin: 0 0 2rem 0;
-	width:  100%;
+	margin: 0;
+	width: 100%;
 	max-height: 60vh;
 	overflow: scroll;
-	border: 2px solid var( --C-color-titanium );
-	border-radius: 0.5rem;
-	background: var( --C-color-white );
 }
+
 .C-circuit-board {
 
 	position: relative;
@@ -170,223 +255,615 @@
 	-ms-user-select: none;
 	user-select: none;
 }
+
+/*.C-circuit-palette,*/
 .C-circuit-board-foreground,
-.C-circuit-board-background {
+.C-circuit-board-background,
+.C-circuit-clipboard {
 
 	box-sizing: border-box;
 	display: grid;
-	grid-auto-rows:    4rem;
+	grid-auto-rows: 4rem;
 	grid-auto-columns: 4rem;
 	grid-auto-flow: column;
 }
+
+/*.C-circuit-palette,*/
 .C-circuit-board-foreground,
 .C-circuit-board-background {
 
 	position: relative;
-	top:  0;
+	top: 0;
 	left: 0;
-	width:  100%;
+	width: 100%;
 	height: 100%;
 }
 
+.C-circuit-clipboard {
 
-
-
-    /***************/
-   /*             */
-  /*   Headers   */
- /*             */
-/***************/
-
-
-.C-circuit-header {
-
-	position: relative;
-	display: inline-block;
-	font-size: 1.2rem;
-	font-weight: 600;
-	color: var( --C-color-slate );
-	text-align: center;
-}
-.C-circuit-register-label,
-.C-circuit-moment-label {
-
-	background: var( --C-color-newsprint );
-}
-.C-circuit-register-label {
-
-	grid-column-start: 1;
-	padding-right: 0.5rem;
-	text-align: right;
-}
-.C-circuit-moment-label {
-
-	grid-row-start: 1;
-}
-.C-circuit-input {
-
-	grid-column-start: 2;
-	background: var( --C-color-chalk );
-	font-family: var( --C-font-family-mono );
+	position: fixed;
+	top: 0;
+	left: 0;
+	margin: 0;
+	z-index: 100;
+	min-width: 4rem;
+	min-height: 4rem;
+	transform: scale(1.05);
+	pointer-events: none;
+	/* Let events pass through to elements below */
 }
 
+.C-circuit-clipboard,
+.C-circuit-clipboard>div {
 
-
-
-    /*****************/
-   /*               */
-  /*   Operations  */
- /*               */
-/*****************/
-
-
-.C-circuit-cell {
-
-	position: relative;
-	width:  4rem;
-	height: 4rem;
-	cursor: pointer;
-	transition: all 0.2s;
-}
-.C-circuit-cell:hover {
-
-	background: rgba( 0, 200, 0, 0.1 );
-	border-radius: 0.5rem;
+	cursor: grabbing;
 }
 
+.C-circuit-clipboard-danger .C-circuit-operation {
 
-.C-circuit-operation {
-
-	position: relative;
-	width:  4rem;
-	height: 4rem;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-size: 1.2rem;
-	font-weight: bold;
-	border: 2px solid var( --C-color-green );
-	border-radius: 0.5rem;
-	background: var( --C-color-white );
-	cursor: pointer;
-	transition: all 0.2s;
-	z-index: 1;
+	background-color: var(--C-color-yellow);
 }
-.C-circuit-operation:hover {
 
-	background: var( --C-color-newsprint );
-	transform: scale( 1.05 );
-	box-shadow: 0 0.2rem 0.4rem rgba( 0, 0, 0, 0.2 );
-	z-index: 2;
+.C-circuit-clipboard-destroy {
+
+	animation-name: C-circuit-clipboard-poof;
+	animation-fill-mode: forwards;
+	animation-duration: 0.3s;
+	animation-iteration-count: 1;
+}
+
+@keyframes C-circuit-clipboard-poof {
+
+	100% {
+
+		transform: scale(1.5);
+		opacity: 0;
+	}
+}
+
+.C-circuit-board-background {
+
+	/*
+
+	Clipboard:  100
+	Operation:    0
+	Shadow:     -10
+	Background: -20
+
+	*/
+	position: absolute;
+	z-index: -20;
+	color: rgba(0, 0, 0, 0.2);
+}
+
+.C-circuit-board-background>div {
+
+	/*	transition: 
+		background-color 0.2s,
+		color 0.2s;*/
+}
+
+.C-circuit-board-background .C-circuit-cell-highlighted {
+
+	background-color: hsl(var(--C-color-background-hue),
+			var(--C-color-background-saturation),
+			95%);
+	/*transition: none;*/
 }
 
 
-/*  Highlighting  */
-
-.C-circuit-cell-highlighted {
-
-	background: rgba( 0, 200, 0, 0.15 );
-}
-.C-circuit-board-background > .C-circuit-cell-highlighted {
-
-	background: rgba( 0, 200, 0, 0.08 );
-}
-
-
-
-
-    /**************/
-   /*            */
-  /*   Wires    */
- /*            */
-/**************/
 
 
 .C-circuit-register-wire {
 
 	position: absolute;
-	top: 50%;
+	top: calc(50% - 0.5px);
+	width: 100%;
+	height: 1px;
+	background-color: hsl(var(--C-color-background-hue),
+			var(--C-color-background-saturation),
+			50%);
+}
+
+
+
+.C-circuit-palette>div,
+.C-circuit-clipboard>div,
+.C-circuit-board-foreground>div {
+
+	text-align: center;
+}
+
+
+
+
+
+
+/***************/
+/*             */
+/*   Headers   */
+/*             */
+/***************/
+
+
+.C-circuit-header {
+
+	position: sticky;
+	z-index: 2;
+	margin: 0;
+	/*background-color: var( --C-color-background );*/
+	background-color: white;
+	color: hsl(var(--C-color-background-hue),
+			var(--C-color-background-saturation),
+			75%);
+	font-family: var(--C-font-family-mono);
+}
+
+.C-circuit-input.C-circuit-cell-highlighted,
+.C-circuit-header.C-circuit-cell-highlighted {
+
+	background-color: hsl(var(--C-color-background-hue),
+			var(--C-color-background-saturation),
+			95%);
+	color: black;
+}
+
+.C-circuit-selectall {
+
+	z-index: 3;
+	margin: 0;
+	top: 0;
+	/*left: 4rem;*/
+	/*grid-column: 2;*/
 	left: 0;
+	grid-column-start: 1;
+	grid-column-end: 3;
+	grid-row: 1;
+	cursor: se-resize;
+}
+
+.C-circuit-moment-label,
+.C-circuit-moment-add {
+
+	grid-row: 1;
+	top: 0;
+	cursor: s-resize;
+}
+
+.C-circuit-register-label,
+.C-circuit-register-add {
+
+	grid-column: 2;
+	left: 4rem;
+	cursor: e-resize;
+}
+
+.C-circuit-moment-add,
+.C-circuit-register-add {
+
+	cursor: pointer;
+}
+
+.C-circuit-moment-add,
+.C-circuit-register-add {
+
+	display: none;
+}
+
+.C-circuit-selectall,
+.C-circuit-moment-label,
+.C-circuit-moment-add {
+
+	border-bottom: 1px solid hsl(var(--C-color-background-hue),
+			var(--C-color-background-saturation),
+			95%);
+}
+
+.C-circuit-selectall,
+.C-circuit-register-label,
+.C-circuit-register-add {
+
+	border-right: 1px solid hsl(var(--C-color-background-hue),
+			var(--C-color-background-saturation),
+			95%);
+}
+
+.C-circuit-input {
+
+	position: sticky;
+	z-index: 2;
+	grid-column: 1;
+	left: 0;
+	/*background-color: var( --C-color-background );*/
+	background-color: white;
+	font-size: 1.5rem;
+	font-weight: 900;
+	font-family: var(--C-font-family-mono);
+}
+
+
+
+
+
+
+.C-circuit-operation-link-container {
+
+	--C-link-stroke: 3px;
+	--C-link-radius: 100%;
+
+	display: block;
+	position: relative;
+	left: calc(50% - (var(--C-link-stroke) / 2));
+	width: 50%;
+	height: 100%;
+	overflow: hidden;
+}
+
+.C-circuit-operation-link-container.C-circuit-cell-highlighted {
+
+	background-color: transparent;
+}
+
+.C-circuit-operation-link {
+
+	display: block;
+	position: absolute;
+	width: calc(var(--C-link-stroke) * 2);
+	height: calc(100% - 4rem + var(--C-link-stroke));
+	/*border: var( --C-link-stroke ) solid hsl( 0, 0%, 50% );*/
+	border: var(--C-link-stroke) solid hsl(var(--C-color-background-hue),
+			10%,
+			30%);
+
+	/*border: var( --C-link-stroke ) solid var( --C-color-orange );*/
+
+	transform: translate(-50%, calc(2rem - (var(--C-link-stroke) / 2)));
+	transform-origin: center;
+}
+
+.C-circuit-operation-link.C-circuit-operation-link-curved {
+
+	width: calc(var(--C-link-radius) - var(--C-link-stroke));
+	width: 200%;
+	border-radius: 100%;
+}
+
+
+
+
+
+
+/******************/
+/*                */
+/*   Operations   */
+/*                */
+/******************/
+
+
+.C-circuit-operation {
+
+	position: relative;
+	/*--C-operation-color-hue: var( --C-color-green-hue );
+	--C-operation-color-main: var( --C-color-green );*/
+
+	--C-operation-color-hue: var(--C-color-blue-hue);
+	--C-operation-color-main: hsl(var(--C-operation-color-hue),
+			10%,
+			35%);
+
+	--C-operation-color-light: hsl(var(--C-operation-color-hue),
+			10%,
+			50%);
+	--C-operation-color-dark: hsl(var(--C-operation-color-hue),
+			10%,
+			25%);
+	color: white;
+	text-shadow: -0.05rem -0.05rem 0 rgba(0, 0, 0, 0.1);
+	font-size: 1.5rem;
+	line-height: 2.9rem;
+	font-weight: 900;
+	cursor: grab;
+}
+
+.C-circuit-locked .C-circuit-operation {
+
+	cursor: not-allowed;
+}
+
+.C-circuit-operation-tile {
+
+	position: absolute;
+	top: 0.5rem;
+	left: 0.5rem;
+	right: 0.5rem;
+	bottom: 0.5rem;
+
+	/*margin:  0.5rem;*/
+	/*padding: 0.5rem;*/
+
+	/*box-shadow: 0.1rem  0.1rem 0.2rem rgba( 0, 0, 0, 0.2 );*/
+	border-radius: 0.2rem;
+	/*
+	border-top:    0.1rem solid var( --C-operation-color-light );
+	border-left:   0.1rem solid var( --C-operation-color-light );
+	border-right:  0.1rem solid var( --C-operation-color-dark );
+	border-bottom: 0.1rem solid var( --C-operation-color-dark );
+	*/
+	background:
+		var(--C-operation-color-main)
+		/*linear-gradient(
+
+			0.45turn,
+			rgba( 255, 255, 255, 0.1 ),
+			rgba( 0, 0, 0, 0.05 )
+		)*/
+	;
+}
+
+.C-circuit-palette .C-circuit-operation:hover {
+
+	/*background-color: rgba( 255, 255, 255, 0.6 );*/
+	background-color: white;
+}
+
+.C-circuit-palette .C-circuit-operation-tile {
+
+	--C-before-rotation: 12deg;
+	--C-before-x: 1px;
+	--C-before-y: -2px;
+
+	--C-after-rotation: -7deg;
+	--C-after-x: -2px;
+	--C-after-y: 3px;
+
+	box-shadow: 0.2rem 0.2rem 0.2rem rgba(0, 0, 0, 0.2);
+}
+
+.C-circuit-palette .C-circuit-operation-tile:before,
+.C-circuit-palette .C-circuit-operation-tile:after {
+
+	content: "";
+	position: absolute;
+	top: 0;
 	right: 0;
-	height: 2px;
-	background: var( --C-color-slate );
-	z-index: -1;
+	bottom: 0;
+	left: 0;
+	border-radius: 0.2rem;
+	/*background-color: hsl( 0, 0%, 60% );*/
+
+	background-color: var(--C-operation-color-dark);
+	transform:
+		translate(var(--C-before-x), var(--C-before-y)) rotate(var(--C-before-rotation));
+	z-index: -10;
+	/*z-index: 10;*/
+	display: block;
+	box-shadow: 0.2rem 0.2rem 0.2rem rgba(0, 0, 0, 0.2);
 }
 
+.C-circuit-palette .C-circuit-operation-tile:after {
 
+	transform:
+		translate(var(--C-after-x), var(--C-after-y)) rotate(var(--C-after-rotation));
+	box-shadow: 0.2rem 0.2rem 0.2rem rgba(0, 0, 0, 0.2);
+}
 
+.C-circuit-operation:hover .C-circuit-operation-tile {
 
-    /**************/
-   /*            */
-  /*   Gates    */
- /*            */
-/**************/
-
-
-.C-gate--not {
-
-	background: var( --C-color-red );
 	color: white;
 }
-.C-gate--and,
-.C-gate--nand {
 
-	background: var( --C-color-blue );
-	color: white;
+
+
+
+.C-circuit-operation-hadamard .C-circuit-operation-tile {
+
+	/*--C-operation-color-hue:  var( --C-color-red-hue );*/
+	/*--C-operation-color-main: var( --C-color-red );*/
+
+	/*--C-operation-color-hue:  0;
+	--C-operation-color-main: hsl( 0, 0%, 10% );*/
+
+
+	/*	background: 
+		linear-gradient(
+
+			-33deg,
+			var( --C-color-blue ) 20%,
+			#6f3c69 50%,
+			var( --C-color-red  ) 80%
+		);*/
 }
-.C-gate--or,
-.C-gate--nor {
 
-	background: var( --C-color-green );
-	color: white;
+.C-circuit-operation-identity .C-circuit-operation-tile,
+.C-circuit-operation-control .C-circuit-operation-tile,
+.C-circuit-operation-target .C-circuit-operation-tile {
+
+	/*--C-operation-color-hue:  var( --C-color-orange-hue );*/
+	/*--C-operation-color-main: var( --C-color-orange );*/
+	border-radius: 100%;
 }
-.C-gate--xor,
-.C-gate--xnor {
 
-	background: var( --C-color-orange );
-	color: white;
+.C-circuit-operation-identity .C-circuit-operation-tile,
+.C-circuit-operation-control .C-circuit-operation-tile {
+
+	top: calc(50% - 0.7rem);
+	left: calc(50% - 0.7rem);
+	width: 1.4rem;
+	height: 1.4rem;
+	overflow: hidden;
+	/*	--C-operation-color-hue:  0;
+	--C-operation-color-main: hsl( 0, 0%, 10% );*/
 }
-.C-gate--buffer,
-.C-gate--identity {
 
-	background: var( --C-color-titanium );
-	color: white;
+.C-circuit-operation-pauli-x,
+.C-circuit-operation-pauli-y,
+.C-circuit-operation-pauli-z {
+
+	/*--C-operation-color-hue:  var( --C-color-red-hue );*/
+	/*--C-operation-color-main: var( --C-color-red );*/
+
+	/*	--C-operation-color-hue:  0;
+	--C-operation-color-main: hsl( 0, 0%, 30% );*/
 }
-.C-gate--probe {
 
-	background: var( --C-color-yellow );
+.C-circuit-operation-swap .C-circuit-operation-tile {
+
+	top: calc(50% - 0.55rem);
+	left: calc(50% - 0.55rem);
+	width: 1.2rem;
+	height: 1.2rem;
+	border-radius: 0;
+	transform-origin: center;
+	transform: rotate(45deg);
+	font-size: 0;
+}
+
+
+
+
+
+
+/********************/
+/*                  */
+/*   Other states   */
+/*                  */
+/********************/
+
+
+.C-circuit-palette>div:hover,
+.C-circuit-board-foreground>div:hover {
+
+	outline: 2px solid var(--C-hyperlink-internal-color);
+	outline-offset: -2px;
+}
+
+.C-circuit-palette>div:hover .C-circuit-operation-tile {
+
+	box-shadow: none;
+}
+
+/*.C-circuit-palette > div:hover,*/
+.C-circuit-board-foreground>div:hover {
+
+	background-color: white;
 	color: black;
 }
 
 
 
 
-    /**************/
-   /*            */
-  /*  Clipboard */
- /*            */
-/**************/
 
 
-.C-circuit-clipboard {
+.C-circuit-clipboard>div,
+.C-circuit-cell-selected {
 
+	background-color: white;
+}
+
+.C-circuit-clipboard>div:before,
+.C-circuit-cell-selected:before {
+
+	content: "";
 	position: absolute;
-	z-index: 100;
-	min-width:  4rem;
-	min-height: 4rem;
-	transform: scale( 1.05 );
-	pointer-events: none;
-	display: grid;
-	grid-auto-rows:    4rem;
-	grid-auto-columns: 4rem;
-	grid-auto-flow: column;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	display: block;
+	z-index: -10;
+	box-shadow:
+		0 0 1rem rgba(0, 0, 0, 0.2),
+		0.4rem 0.4rem 0.2rem rgba(0, 0, 0, 0.2);
+	outline: 1px solid hsl(var(--C-color-background-hue),
+			var(--C-color-background-saturation),
+			50%);
+	/*outline-offset: -1px;*/
 }
-.C-circuit-clipboard, .C-circuit-clipboard > div {
 
-	cursor: grabbing;
+
+
+
+.C-circuit-clipboard>div {
+
+	background-color: white;
 }
-.C-circuit-clipboard-danger .C-circuit-operation {
 
-	opacity: 0.5;
-	background: var( --C-color-red ) !important;
+.C-circuit-clipboard>div:before {
+
+	/*  
+
+	This was very helpful!
+	https://blog.dudak.me/2014/css-shadows-under-adjacent-elements/
+
+	*/
+	content: "";
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	z-index: -10;
+	display: block;
+	box-shadow: 0.4rem 0.4rem 0.3rem rgba(0, 0, 0, 0.2);
+}
+
+
+
+
+
+/***************/
+/*             */
+/*   Buttons   */
+/*             */
+/***************/
+
+
+.C-circuit-locked .C-circuit-toggle-lock,
+.C-circuit-locked .C-circuit-toggle-lock:hover {
+
+	background-color: var(--C-color-red);
+}
+
+.C-circuit-toggle-lock {
+
+	z-index: 3;
+	left: 0;
+	top: 0;
+	grid-column: 1;
+	grid-row: 1;
+	cursor: pointer;
+	font-size: 1.1rem;
+	text-shadow: none;
+	font-weight: normal;
+}
+
+.C-circuit-button-undo,
+.C-circuit-button-redo {
+
+	font-size: 1.2rem;
+	line-height: 2.6rem;
+	font-weight: normal;
+}
+
+
+
+.C-circuit p {
+
+	padding: 1rem;
+	color: hsl(var(--C-color-background-hue),
+			var(--C-color-background-saturation),
+			66%);
+}
+
+
+
+.C-circuit-results {
+	display: block;
+	margin-top: 1rem;
+	padding: 1rem;
+	background-color: hsl(var(--C-color-background-hue), var(--C-color-background-saturation), 95%);
+	border-radius: 4px;
+	font-family: monospace;
+	white-space: pre-wrap;
+	border: 1px solid hsl(var(--C-color-background-hue), var(--C-color-background-saturation), 85%);
 }

@@ -20,7 +20,7 @@
 	this Q.css file into their own web app with little
 	to no interference with their app. All variables
 	and styles here will ultimately be prefaced with
-	a capital Q, eg. --C-color-base, or .C-text-input
+	a capital Q, eg. --Q-color-base, or .Q-text-input
 	and so on.
 
 
@@ -42,131 +42,131 @@ svg, :root {
 
 	/*  Base color (blue)  */
 
-	--C-color-base-hue:       210;
-	--C-color-base-saturation: 85%;
-	--C-color-base-lightness:  40%;
+	--Q-color-base-hue:       210;
+	--Q-color-base-saturation: 85%;
+	--Q-color-base-lightness:  40%;
 
 
 	/*  Red  */
 
-	--C-color-red-hue: calc( var( --C-color-base-hue ) + 180 - 30 );
-	--C-color-red-saturation: 85%;
-	--C-color-red-lightness:  45%;
-	--C-color-red: hsl(
+	--Q-color-red-hue: calc( var( --Q-color-base-hue ) + 180 - 30 );
+	--Q-color-red-saturation: 85%;
+	--Q-color-red-lightness:  45%;
+	--Q-color-red: hsl(
 
-		var( --C-color-red-hue ),
-		var( --C-color-red-saturation ),
-		var( --C-color-red-lightness )
+		var( --Q-color-red-hue ),
+		var( --Q-color-red-saturation ),
+		var( --Q-color-red-lightness )
 	);
 
 
 	/*  Orange  */
 	
-	--C-color-orange-hue: calc( var( --C-color-base-hue ) + 180 - 15 );
-	--C-color-orange-saturation: 85%;
-	--C-color-orange-lightness:  50%;
-	--C-color-orange: hsl(
+	--Q-color-orange-hue: calc( var( --Q-color-base-hue ) + 180 - 15 );
+	--Q-color-orange-saturation: 85%;
+	--Q-color-orange-lightness:  50%;
+	--Q-color-orange: hsl(
 
-		var( --C-color-orange-hue ),
-		var( --C-color-orange-saturation ),
-		var( --C-color-orange-lightness )
+		var( --Q-color-orange-hue ),
+		var( --Q-color-orange-saturation ),
+		var( --Q-color-orange-lightness )
 	);
 
 
 	/*  Yellow  */
 
-	--C-color-yellow-hue: calc( var( --C-color-base-hue ) + 180 + 15 );
-	--C-color-yellow-saturation: 90%;
-	--C-color-yellow-lightness:  50%;
-	--C-color-yellow: hsl(
+	--Q-color-yellow-hue: calc( var( --Q-color-base-hue ) + 180 + 15 );
+	--Q-color-yellow-saturation: 90%;
+	--Q-color-yellow-lightness:  50%;
+	--Q-color-yellow: hsl(
 
-		var( --C-color-yellow-hue ),
-		var( --C-color-yellow-saturation ),
-		var( --C-color-yellow-lightness )
+		var( --Q-color-yellow-hue ),
+		var( --Q-color-yellow-saturation ),
+		var( --Q-color-yellow-lightness )
 	);
 	
 
 	/*  Green  */
 
-	--C-color-green-hue: calc( var( --C-color-base-hue ) + 180 + 60 );
-	--C-color-green-saturation: 80%;
-	--C-color-green-lightness:  35%;
-	--C-color-green: hsl(
+	--Q-color-green-hue: calc( var( --Q-color-base-hue ) + 180 + 60 );
+	--Q-color-green-saturation: 80%;
+	--Q-color-green-lightness:  35%;
+	--Q-color-green: hsl(
 
-		var( --C-color-green-hue ),
-		var( --C-color-green-saturation ),
-		var( --C-color-green-lightness )
+		var( --Q-color-green-hue ),
+		var( --Q-color-green-saturation ),
+		var( --Q-color-green-lightness )
 	);
 
 
 	/*  Blue  */
 
-	--C-color-blue-hue:        var( --C-color-base-hue );
-	--C-color-blue-saturation: var( --C-color-base-saturation );
-	--C-color-blue-lightness:  var( --C-color-base-lightness );
-	--C-color-blue: hsl(
+	--Q-color-blue-hue:        var( --Q-color-base-hue );
+	--Q-color-blue-saturation: var( --Q-color-base-saturation );
+	--Q-color-blue-lightness:  var( --Q-color-base-lightness );
+	--Q-color-blue: hsl(
 
-		var( --C-color-blue-hue ),
-		var( --C-color-blue-saturation ),
-		var( --C-color-blue-lightness )
+		var( --Q-color-blue-hue ),
+		var( --Q-color-blue-saturation ),
+		var( --Q-color-blue-lightness )
 	);
 
 
 	/*  Grayscale  */
 
-	--C-color-white:     #FFFFFF;
-	--C-color-chalk:     #F9F9F9;
-	--C-color-newsprint: #F3F3F3;
-	--C-color-titanium:  #CCCCCC;
-	--C-color-slate:     #777777;
-	--C-color-charcoal:  #333333;
-	--C-color-black:     #000000;
+	--Q-color-white:     #FFFFFF;
+	--Q-color-chalk:     #F9F9F9;
+	--Q-color-newsprint: #F3F3F3;
+	--Q-color-titanium:  #CCCCCC;
+	--Q-color-slate:     #777777;
+	--Q-color-charcoal:  #333333;
+	--Q-color-black:     #000000;
 	
 
 	/*  Background  */
 
-	--C-color-background-hue: var( --C-color-base-hue );
-	--C-color-background-saturation: 15%;
-	--C-color-background-lightness:  98%;	
-	--C-color-background: hsl(
+	--Q-color-background-hue: var( --Q-color-base-hue );
+	--Q-color-background-saturation: 15%;
+	--Q-color-background-lightness:  98%;	
+	--Q-color-background: hsl(
 
-		var( --C-color-background-hue ),
-		var( --C-color-background-saturation ),
-		var( --C-color-background-lightness )
+		var( --Q-color-background-hue ),
+		var( --Q-color-background-saturation ),
+		var( --Q-color-background-lightness )
 	);
-	/*--C-color-background: white;*/
+	/*--Q-color-background: white;*/
 
 
 	/*  Misc  */
 
-	--C-text-color: hsl(
+	--Q-text-color: hsl(
 
-		var( --C-color-base-hue ),
+		var( --Q-color-base-hue ),
 		 5%,
 		35%
 	);
-	--C-text-code-comment-color: rgba( 0, 0, 0, 0.4 );
-	--C-text-code-output-color:  rgba( 0, 0, 0, 1 );
+	--Q-text-code-comment-color: rgba( 0, 0, 0, 0.4 );
+	--Q-text-code-output-color:  rgba( 0, 0, 0, 1 );
 
-	--C-selection-color: var( --C-color-black );
-	--C-selection-background-color: var( --C-color-yellow );
+	--Q-selection-color: var( --Q-color-black );
+	--Q-selection-background-color: var( --Q-color-yellow );
 
-	--C-hyperlink-internal-color: var( --C-color-blue );
-	--C-hyperlink-external-color: var( --C-text-color );
+	--Q-hyperlink-internal-color: var( --Q-color-blue );
+	--Q-hyperlink-external-color: var( --Q-text-color );
 	
-	--C-background-callout-color: var( --C-color-white );
+	--Q-background-callout-color: var( --Q-color-white );
 
-	--C-svg-fill-color: var( --C-text-color );
+	--Q-svg-fill-color: var( --Q-text-color );
 
 
 
 
 	/*  Fonts  */
 
-	--C-font-family-serif:   'Source Serif Pro', 'Roboto Slab', 'Georgia', serif;
-	--C-font-family-sans:    'SF Pro Text', system-ui, -apple-system, 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
-	--C-font-family-mono:    'Roboto Mono', 'Source Code Pro', 'Menlo', 'Courier New', monospace;
-	--C-font-family-symbols: 'Georgia', serif;
+	--Q-font-family-serif:   'Source Serif Pro', 'Roboto Slab', 'Georgia', serif;
+	--Q-font-family-sans:    'SF Pro Text', system-ui, -apple-system, 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+	--Q-font-family-mono:    'Roboto Mono', 'Source Code Pro', 'Menlo', 'Courier New', monospace;
+	--Q-font-family-symbols: 'Georgia', serif;
 }
 
 
@@ -179,8 +179,8 @@ svg, :root {
 /*******************/
 
 
-.C-input, 
-.C-circuit-text-input {
+.Q-input, 
+.Q-circuit-text-input {
 
 	margin: 1.5rem 0 0 0 !important;
 	outline: none !important;
@@ -197,8 +197,8 @@ svg, :root {
 		rgba( 255, 255, 255, 0.2 )
 	) !important;
 }
-.C-input, 
-.C-circuit-text-input {
+.Q-input, 
+.Q-circuit-text-input {
 	
 	padding: 1.5rem !important;
 	color: #555 !important;
@@ -208,19 +208,19 @@ svg, :root {
 
 
 
-.C-circuit-text-input {
+.Q-circuit-text-input {
 
 	/*min-width:  18rem;*/
 	width: 100%;
 	min-height: 8rem;
 	/*margin:  1rem 0 2rem 0;*/
 	margin:  1rem 0 0 0;
-	border: 1px solid var( --C-color-blue );
+	border: 1px solid var( --Q-color-blue );
 	border-radius: 0.5rem;	
-	background-color: var( --C-color-chalk );
+	background-color: var( --Q-color-chalk );
 	padding: 1rem 0 0 2rem;
-	color: var( --C-color-blue );
-	font-family: var( --C-font-family-mono );
+	color: var( --Q-color-blue );
+	font-family: var( --Q-font-family-mono );
 	font-size:   1.0rem;
 	line-height: 1.2rem;
 	white-space: pre;
@@ -232,7 +232,7 @@ svg, :root {
 
 
 
-.C-button {
+.Q-button {
 
 	position: relative;
 	text-align: right;
@@ -243,7 +243,7 @@ svg, :root {
 		 0.1rem  0.1rem 0.2rem rgba( 0, 0, 0, 0.3 );
 	height: 3rem;
 	background: 
-		var( --C-color-blue )
+		var( --Q-color-blue )
 		linear-gradient(
 
 			0.4turn,
@@ -251,8 +251,8 @@ svg, :root {
 			rgba( 0, 0, 0, 0.08 )
 		);
 	padding: 0.8rem 1.8rem;
-	color: var( --C-color-white );
-	font-family: var( --C-font-family-sans );
+	color: var( --Q-color-white );
+	font-family: var( --Q-font-family-sans );
 	font-size:   1rem;
 	line-height: 1rem;	
 	font-weight: 500;
@@ -260,14 +260,14 @@ svg, :root {
 	text-shadow: -1px -1px 0 rgba( 0, 0, 0, 0.1 );
 	cursor: pointer;
 }
-.C-button:hover {
+.Q-button:hover {
 
 	background: 
 		hsl(
 
-			var( --C-color-blue-hue ),
-			var( --C-color-blue-saturation ),
-			calc( var( --C-color-blue-lightness ) * 1.2 )
+			var( --Q-color-blue-hue ),
+			var( --Q-color-blue-saturation ),
+			calc( var( --Q-color-blue-lightness ) * 1.2 )
 		)
 		linear-gradient(
 
@@ -276,7 +276,7 @@ svg, :root {
 			rgba( 0, 0, 0, 0.08 )
 		);
 }
-.C-button:focus {
+.Q-button:focus {
 
 	margin-top: 0.7rem;
 	margin-bottom: -0.2rem;
@@ -286,7 +286,7 @@ svg, :root {
 		-0.1rem -0.1rem 0 rgba( 255, 255, 255, 1 ) inset,
 		 0.1rem  0.1rem 0.2rem rgba( 0, 0, 0, 0.3 ) inset;
 	background: 
-		var( --C-color-blue )
+		var( --Q-color-blue )
 		linear-gradient(
 
 			0.4turn,
@@ -294,13 +294,13 @@ svg, :root {
 			rgba( 255, 255, 255, 0.2 )
 		);
 }
-.C-button[disabled] {
+.Q-button[disabled] {
 
 	box-shadow: 
 		-0.1rem -0.1rem 0 rgba( 255, 255, 255, 1 ),
 		 0.1rem  0.1rem 0.2rem rgba( 0, 0, 0, 0.3 );
 	background: 
-		var( --C-color-background )
+		var( --Q-color-background )
 		linear-gradient(
 
 			0.45turn,
@@ -319,7 +319,7 @@ svg, :root {
 
 /*
 
-	The below still need to be prefaced with “C-”
+	The below still need to be prefaced with “Q-”
 	and for the HTML pages to be updated accordingly.
 
 */
@@ -340,7 +340,7 @@ svg, :root {
 
 	max-width: 100%;
 	overflow-x: auto;
-	font-family: var( --C-font-family-sans );
+	font-family: var( --Q-font-family-sans );
 	/*letter-spacing: 0.03em;*/
 	word-spacing: 0.2em;
 }
@@ -357,7 +357,7 @@ dd .maths {
 
 	font-size: 1.1em;
 	padding: 0 0.1em;
-	font-family: var( --C-font-family-symbols );
+	font-family: var( --Q-font-family-symbols );
 	font-style: italic;
 	font-weight: 900;
 	letter-spacing: 0.05em;
@@ -397,7 +397,7 @@ dd .maths {
 	align: middle;
 	margin:  1em 0.5em;
 	padding: 1em;
-	/*font-family: var( --C-font-family-mono );*/
+	/*font-family: var( --Q-font-family-mono );*/
 	font-weight: 300;
 	line-height: 1em;
 	/*text-align: right;*/
@@ -432,36 +432,36 @@ dd .maths {
 
 
 
-.C-state-vector,
+.Q-state-vector,
 .complex-vector {
 
-	font-family: var( --C-font-family-mono );
+	font-family: var( --Q-font-family-mono );
 }
-.C-state-vector.bra::before,
+.Q-state-vector.bra::before,
 .complex-vector.bra::before {
 
 	content: '⟨';
 	color: #BBB;
 }
-.C-state-vector.bra::after,
+.Q-state-vector.bra::after,
 .complex-vector.bra::after {
 
 	content: '|';
 	color: #BBB;
 }
-.C-state-vector.ket::before,
+.Q-state-vector.ket::before,
 .complex-vector.ket::before {
 
 	content: '|';
 	color: #BBB;
 }
-.C-state-vector.ket::after,
+.Q-state-vector.ket::after,
 .complex-vector.ket::after {
 
 	content: '⟩';
 	color: #BBB;
 }
-.C-state-vector.bra + .C-state-vector.ket::before,
+.Q-state-vector.bra + .Q-state-vector.ket::before,
 .complex-vector.bra + .complex-vector.ket::before {
 
 	content: '';

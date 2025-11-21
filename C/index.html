@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
 
 	<link rel="stylesheet" href="C.css">
 	<link rel="stylesheet" href="C-Circuit-Editor.css">
+	<link rel="stylesheet" href="C-AnimatedBeam.css">
 
 	<style>
 		* {
@@ -14,9 +16,11 @@
 			padding: 0;
 			box-sizing: border-box;
 		}
+
 		html {
 			font-size: 10px;
 		}
+
 		body {
 			font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 			font-size: 1.6rem;
@@ -25,6 +29,7 @@
 			background: #f5f5f5;
 			padding: 2rem;
 		}
+
 		.container {
 			max-width: 1200px;
 			margin: 0 auto;
@@ -33,19 +38,23 @@
 			border-radius: 1rem;
 			box-shadow: 0 0.2rem 1rem rgba(0, 0, 0, 0.1);
 		}
+
 		h1 {
 			color: #2c7a3f;
 			margin-bottom: 1rem;
 			font-size: 3.6rem;
 		}
+
 		h2 {
 			color: #2c7a3f;
 			margin: 2rem 0 1rem 0;
 			font-size: 2.4rem;
 		}
+
 		p {
 			margin-bottom: 1rem;
 		}
+
 		.description {
 			background: #e8f5e9;
 			padding: 1.5rem;
@@ -53,17 +62,20 @@
 			margin-bottom: 2rem;
 			border-radius: 0.5rem;
 		}
+
 		.example {
 			margin: 2rem 0;
 			padding: 1.5rem;
 			background: #f9f9f9;
 			border-radius: 0.5rem;
 		}
+
 		.example h3 {
 			font-size: 1.8rem;
 			margin-bottom: 1rem;
 			color: #2c7a3f;
 		}
+
 		pre {
 			background: #272822;
 			color: #f8f8f2;
@@ -73,12 +85,14 @@
 			font-size: 1.4rem;
 			margin: 1rem 0;
 		}
+
 		code {
 			background: #f4f4f4;
 			padding: 0.2rem 0.5rem;
 			border-radius: 0.3rem;
 			font-family: 'Courier New', monospace;
 		}
+
 		#palette-container {
 			margin: 2rem 0;
 			padding: 1.5rem;
@@ -87,12 +101,15 @@
 		}
 	</style>
 </head>
+
 <body>
 	<div class="container">
 		<h1>C.js - Classical Circuit Simulator</h1>
 
 		<div class="description">
-			<p><strong>C.js</strong> is a classical (digital) circuit simulator inspired by the quantum circuit simulator Q.js. Build and test logic circuits using classical logic gates like AND, OR, NOT, NAND, NOR, XOR, and more!</p>
+			<p><strong>C.js</strong> is a classical (digital) circuit simulator inspired by the quantum circuit
+				simulator Q.js. Build and test logic circuits using classical logic gates like AND, OR, NOT, NAND, NOR,
+				XOR, and more!</p>
 		</div>
 
 		<h2>Available Gates</h2>
@@ -174,6 +191,7 @@ document.body.appendChild(editor)</pre>
 	<script src="C-Gate.js"></script>
 	<script src="C-History.js"></script>
 	<script src="C-Circuit.js"></script>
+	<script src="C-AnimatedBeam.js"></script>
 	<script src="C-Circuit-Editor.js"></script>
 
 	<script>
@@ -187,30 +205,32 @@ document.body.appendChild(editor)</pre>
 		circuit1.set$('NOT', 1, 1)
 		circuit1.toDom(document.getElementById('circuit1'))
 
-		// Example 2: AND gate
-		const circuit2 = new C.Circuit(2, 2)
+		// Example 2: AND gate (multi-wire)
+		const circuit2 = new C.Circuit(3, 2)
 		circuit2.bits[0] = C.Bit.ONE
 		circuit2.bits[1] = C.Bit.ONE
-		circuit2.set$('AND', 1, 1)
+		circuit2.bits[2] = C.Bit.ZERO
+		circuit2.set$('AND', 1, 1, 2)  // AND gate at moment 1, inputs from wires 1 and 2
 		circuit2.toDom(document.getElementById('circuit2'))
 
-		// Example 3: XOR gate
-		const circuit3 = new C.Circuit(2, 2)
+		// Example 3: XOR gate (multi-wire)
+		const circuit3 = new C.Circuit(3, 2)
 		circuit3.bits[0] = C.Bit.ONE
 		circuit3.bits[1] = C.Bit.ZERO
-		circuit3.set$('XOR', 1, 1)
+		circuit3.bits[2] = C.Bit.ZERO
+		circuit3.set$('XOR', 1, 1, 2)  // XOR gate at moment 1, inputs from wires 1 and 2
 		circuit3.toDom(document.getElementById('circuit3'))
 
-		// Interactive circuit
+		// Interactive circuit with multi-wire gates
 		const interactiveCircuit = new C.Circuit(4, 6)
 		interactiveCircuit.bits[0] = C.Bit.ONE
 		interactiveCircuit.bits[1] = C.Bit.ONE
 		interactiveCircuit.bits[2] = C.Bit.ZERO
 		interactiveCircuit.bits[3] = C.Bit.ONE
 		interactiveCircuit.set$('NOT', 1, 1)
-		interactiveCircuit.set$('AND', 2, 2)
-		interactiveCircuit.set$('OR', 3, 3)
-		interactiveCircuit.set$('XOR', 4, 4)
+		interactiveCircuit.set$('AND', 2, 2, 3)  // AND gate with inputs from wires 2 and 3
+		interactiveCircuit.set$('OR', 3, 1, 2)   // OR gate with inputs from wires 1 and 2
+		interactiveCircuit.set$('XOR', 4, 3, 4)  // XOR gate with inputs from wires 3 and 4
 		interactiveCircuit.toDom(document.getElementById('interactive-circuit'))
 
 		// Make circuits available in console
@@ -223,4 +243,5 @@ document.body.appendChild(editor)</pre>
 		console.log('Try accessing circuits via: circuit1, circuit2, circuit3, or interactiveCircuit')
 	</script>
 </body>
+
 </html>
