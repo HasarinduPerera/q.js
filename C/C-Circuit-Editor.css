@@ -730,8 +730,7 @@
 /********************/
 
 
-.C-circuit-palette>div:hover,
-.C-circuit-board-foreground>div:hover {
+.C-circuit-palette>div:hover {
 
 	outline: 2px solid var(--C-hyperlink-internal-color);
 	outline-offset: -2px;
@@ -742,12 +741,7 @@
 	box-shadow: none;
 }
 
-/*.C-circuit-palette > div:hover,*/
-.C-circuit-board-foreground>div:hover {
 
-	background-color: white;
-	color: black;
-}
 
 
 

@@ -397,7 +397,7 @@ Object.assign(C.Circuit.Editor, {
 	index: 0,
 	help: function () { return C.help(this) },
 	dragEl: null,
-	currentGateSymbol: 'NOT',  // Default gate for placement
+	currentGateSymbol: null,  // No default gate selected
 	gateList: ['NOT', 'AND', 'OR', 'NAND', 'NOR', 'XOR', 'XNOR', 'BUF'],
 	gridColumnToMomentIndex: function (gridColumn) { return +gridColumn - 2 },
 	momentIndexToGridColumn: function (momentIndex) { return momentIndex + 2 },
@@ -566,8 +566,10 @@ Object.assign(C.Circuit.Editor, {
 
 			event.preventDefault()
 
-			C.Circuit.Editor.dragEl.style.left = (x + window.pageXOffset + C.Circuit.Editor.dragEl.offsetX) + 'px'
-			C.Circuit.Editor.dragEl.style.top = (y + window.pageYOffset + C.Circuit.Editor.dragEl.offsetY) + 'px'
+			// Use fixed positioning (viewport coordinates)
+			// Gate is 4rem x 4rem (approx 64px x 64px), center it on cursor
+			C.Circuit.Editor.dragEl.style.left = (x - 32) + 'px'
+			C.Circuit.Editor.dragEl.style.top = (y - 32) + 'px'
 
 			if (!boardContainerEl && C.Circuit.Editor.dragEl.circuitEl) {
 				C.Circuit.Editor.dragEl.classList.add('C-circuit-clipboard-danger')
@@ -736,43 +738,7 @@ Object.assign(C.Circuit.Editor, {
 
 				return
 			}
-			//  Handle clicking on empty cell - place gate
-			if (cellEl) {
-
-				const
-					momentIndex = +cellEl.getAttribute('moment-index'),
-					registerIndex = +cellEl.getAttribute('register-index'),
-					gate = C.Gate.findBySymbol(C.Circuit.Editor.currentGateSymbol)
-
-				console.log('Placing gate:', C.Circuit.Editor.currentGateSymbol, 'at moment', momentIndex, 'register', registerIndex)
-				console.log('Gate object:', gate)
-				console.log('Gate wireSpan:', gate ? gate.wireSpan : 'undefined')
-
-				// For multi-wire gates, automatically span across wires
-				if (gate && gate.wireSpan > 1) {
-					// Place gate spanning from current wire to wire+wireSpan-1
-					const wireIndices = []
-					for (let i = 0; i < gate.wireSpan; i++) {
-						const wireIdx = registerIndex + i
-						if (wireIdx <= circuit.bandwidth) {
-							wireIndices.push(wireIdx)
-						}
-					}
-					console.log('Multi-wire gate - wireIndices:', wireIndices, 'need:', gate.wireSpan)
-					// Only place if we have enough wires
-					if (wireIndices.length === gate.wireSpan) {
-						circuit.set$(C.Circuit.Editor.currentGateSymbol, momentIndex, ...wireIndices)
-					} else {
-						console.warn('Not enough wires to place gate')
-					}
-				} else {
-					// Single-wire gate
-					console.log('Single-wire gate')
-					circuit.set$(C.Circuit.Editor.currentGateSymbol, momentIndex, registerIndex)
-				}
-
-				return
-			}
+			// Click-to-place removed - gates must be dragged from palette	}
 		}
 
 		//  Handle palette interactions - drag gate from palette
@@ -800,25 +766,6 @@ Object.assign(C.Circuit.Editor, {
 			C.Circuit.Editor.onPointerMove(event)
 		}
 	},
-
-	onPointerMove: function (event) {
-
-		const dragEl = C.Circuit.Editor.dragEl
-		if (!dragEl) return
-
-		event.preventDefault()
-		event.stopPropagation()
-
-		const { x, y } = C.Circuit.Editor.getInteractionCoordinates(event)
-
-		// Simple centering: 
-		// Gate is 4rem x 4rem (approx 64px x 64px)
-		// Center it on the mouse cursor
-		// We use fixed positioning (viewport coordinates)
-		dragEl.style.left = (x - 32) + 'px'
-		dragEl.style.top = (y - 32) + 'px'
-	},
-
 
 
 	onPointerRelease: function (event) {
