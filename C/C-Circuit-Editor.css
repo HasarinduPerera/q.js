@@ -365,6 +365,25 @@
 			50%);
 }
 
+.C-circuit-selectall {
+
+	z-index: 3;
+	margin: 0;
+	top: 0;
+	left: 0;
+	grid-column-start: 1;
+	grid-column-end: 3;
+	grid-row: 1;
+	cursor: se-resize;
+	border-bottom: 1px solid hsl(var(--C-color-background-hue),
+			var(--C-color-background-saturation),
+			95%);
+	border-right: 1px solid hsl(var(--C-color-background-hue),
+			var(--C-color-background-saturation),
+			95%);
+}
+
+
 
 
 .C-circuit-palette>div,

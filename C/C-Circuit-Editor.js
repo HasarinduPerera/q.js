@@ -256,6 +256,30 @@ C.Circuit.Editor = function (circuit, targetEl) {
 	foregroundEl.classList.add('C-circuit-board-foreground')
 
 
+	//  Add "Select All" toggle button to upper-left corner (like q.js)
+
+	const selectallEl = createDiv()
+	foregroundEl.appendChild(selectallEl)
+	selectallEl.classList.add('C-circuit-header', 'C-circuit-selectall')
+	selectallEl.setAttribute('title', 'Select all')
+	selectallEl.setAttribute('moment-index', '0')
+	selectallEl.setAttribute('register-index', '0')
+	selectallEl.innerHTML = '&searr;'  // ↘ arrow
+	selectallEl.addEventListener('mouseenter', function () {
+		const backgroundEl = circuitEl.querySelector('.C-circuit-board-background')
+		Array.from(backgroundEl.querySelectorAll('div')).forEach(function (el) {
+			el.classList.add('C-circuit-cell-highlighted')
+		})
+	})
+	selectallEl.addEventListener('mouseleave', function () {
+		const backgroundEl = circuitEl.querySelector('.C-circuit-board-background')
+		Array.from(backgroundEl.querySelectorAll('div')).forEach(function (el) {
+			el.classList.remove('C-circuit-cell-highlighted')
+		})
+	})
+
+
+
 	//  Add register index symbols to left-hand column
 
 	for (let i = 0; i < circuit.bandwidth; i++) {
@@ -672,6 +696,7 @@ Object.assign(C.Circuit.Editor, {
 				undoEl = targetEl.closest('.C-circuit-button-undo'),
 				redoEl = targetEl.closest('.C-circuit-button-redo'),
 				evaluateEl = targetEl.closest('.C-circuit-button-evaluate'),
+				selectallEl = targetEl.closest('.C-circuit-selectall'),
 				cellEl = targetEl.closest('.C-circuit-cell'),
 				operationEl = targetEl.closest('.C-circuit-operation')
 
@@ -693,15 +718,34 @@ Object.assign(C.Circuit.Editor, {
 				resultsEl.innerText = circuit.report$()
 				return
 			}
-			//  Handle clicking on existing operation - cycle through gates (DISABLED)
+
+			//  Handle select-all button
+			if (selectallEl) {
+				const operations = Array.from(circuitEl.querySelectorAll('.C-circuit-operation'))
+				const selectedCount = operations.reduce(function (sum, el) {
+					return sum + (el.classList.contains('C-circuit-cell-selected') ? 1 : 0)
+				}, 0)
+
+				// If all are selected, deselect all. Otherwise, select all.
+				if (selectedCount === operations.length) {
+					operations.forEach(function (el) {
+						el.classList.remove('C-circuit-cell-selected')
+					})
+				} else {
+					operations.forEach(function (el) {
+						el.classList.add('C-circuit-cell-selected')
+					})
+				}
+				return
+			}
+
 			//  Handle clicking on existing operation - drag to move
 			if (operationEl) {
 
 				const
 					momentIndex = +operationEl.getAttribute('moment-index'),
 					registerIndex = +operationEl.getAttribute('register-index'),
-					gateSymbol = operationEl.getAttribute('gate-symbol'),
-					bounds = operationEl.getBoundingClientRect()
+					gateSymbol = operationEl.getAttribute('gate-symbol')
 
 				// Set as current gate
 				C.Circuit.Editor.currentGateSymbol = gateSymbol
@@ -711,17 +755,16 @@ Object.assign(C.Circuit.Editor, {
 				dragEl.classList.add('C-circuit-clipboard')
 
 				const clonedOp = operationEl.cloneNode(true)
-				// Remove grid positioning from the clone so it sits inside the clipboard correctly
+				// Remove grid positioning from the clone
 				clonedOp.style.gridRowStart = ''
 				clonedOp.style.gridColumnStart = ''
 				clonedOp.style.gridRowEnd = ''
 				clonedOp.style.gridColumnEnd = ''
 				clonedOp.style.left = ''
 				clonedOp.style.top = ''
-				clonedOp.style.position = '' // Reset position just in case
+				clonedOp.style.position = ''
 
 				dragEl.appendChild(clonedOp)
-
 				dragEl.originEl = circuitEl
 				dragEl.offsetX = 0
 				dragEl.offsetY = 0
@@ -738,7 +781,7 @@ Object.assign(C.Circuit.Editor, {
 
 				return
 			}
-			// Click-to-place removed - gates must be dragged from palette	}
+			// Click-to-place removed - gates must be dragged from palette
 		}
 
 		//  Handle palette interactions - drag gate from palette
