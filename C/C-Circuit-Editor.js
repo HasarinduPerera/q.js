@@ -264,12 +264,18 @@ C.Circuit.Editor = function (circuit, targetEl) {
 	selectallEl.setAttribute('title', 'Select all')
 	selectallEl.setAttribute('moment-index', '0')
 	selectallEl.setAttribute('register-index', '0')
-	selectallEl.innerHTML = '&searr;'  // ↘ arrow
-	selectallEl.addEventListener('mouseenter', function () {
-		const backgroundEl = circuitEl.querySelector('.C-circuit-board-background')
-		Array.from(backgroundEl.querySelectorAll('div')).forEach(function (el) {
-			el.classList.add('C-circuit-cell-highlighted')
-		})
+	selectallEl.innerHTML = '&searr;'  		// ↘ arrow
+	selectallEl.addEventListener('mouseenter', function (event) {
+		// If hovering over select-all button, highlight all rows and columns
+		if (event.target.closest('.C-circuit-selectall')) {
+			const backgroundEl = boardContainerEl.querySelector('.C-circuit-board-background')
+			// Only highlight rows (register-index) to avoid covering wires with columns
+			Array.from(backgroundEl.querySelectorAll('div[register-index]'))
+				.forEach(function (el) {
+					el.classList.add('C-circuit-cell-highlighted')
+				})
+			return
+		}
 	})
 	selectallEl.addEventListener('mouseleave', function () {
 		const backgroundEl = circuitEl.querySelector('.C-circuit-board-background')
@@ -607,6 +613,9 @@ Object.assign(C.Circuit.Editor, {
 
 		const circuitEl = boardContainerEl.closest('.C-circuit')
 		if (circuitEl.classList.contains('C-circuit-locked')) return
+
+		// If hovering over select-all button, let the event listeners handle it
+		if (event.target.closest('.C-circuit-selectall')) return
 
 		//  Unhighlight everything first
 		Array.from(boardContainerEl.querySelectorAll(`
