@@ -233,6 +233,18 @@ Object.assign(C.Circuit, {
 			//  (This may be an intermediate wire like 1.5)
 			state[outputWire] = output.value
 
+			// Capture state for this moment
+			if (!circuit.trace) circuit.trace = []
+			// Ensure trace has entries up to this moment
+			for (let m = 0; m <= operation.momentIndex; m++) {
+				if (!circuit.trace[m]) {
+					circuit.trace[m] = Object.assign({}, state)
+				}
+			}
+			// Update current moment trace
+			circuit.trace[operation.momentIndex] = Object.assign({}, state)
+
+
 			operationsCompleted++
 			const progress = operationsCompleted / operationsTotal
 
@@ -265,6 +277,20 @@ Object.assign(C.Circuit, {
 		// Also store intermediate wire values for visualization
 		circuit.intermediateWires = state
 
+		// Ensure trace is fully populated
+		if (!circuit.trace) circuit.trace = []
+		if (!circuit.trace[0]) {
+			const initialState = {}
+			circuit.bits.forEach((bit, i) => initialState[i + 1] = bit.value)
+			circuit.trace[0] = initialState
+		}
+		for (let i = 1; i <= circuit.timewidth; i++) {
+			if (!circuit.trace[i]) {
+				circuit.trace[i] = Object.assign({}, circuit.trace[i - 1])
+			}
+		}
+
+
 		circuit.needsEvaluation = false
 
 
@@ -273,7 +299,8 @@ Object.assign(C.Circuit, {
 
 				circuit,
 				results: circuit.results,
-				intermediateWires: circuit.intermediateWires
+				intermediateWires: circuit.intermediateWires,
+				trace: circuit.trace
 
 			}
 		}))

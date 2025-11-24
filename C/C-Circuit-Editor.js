@@ -138,6 +138,202 @@ C.Circuit.Editor = function (circuit, targetEl) {
 	})
 
 
+	//  Create "Show Signal" button (Data Flow)
+	const signalButton = createDiv()
+	toolbarEl.appendChild(signalButton)
+	signalButton.classList.add('C-circuit-button', 'C-circuit-button-signal')
+	signalButton.setAttribute('title', 'Show active current signal')
+	signalButton.innerHTML = '&#8669;' // Squiggly arrow or similar
+	signalButton.style.fontSize = '1.5rem'
+
+	//  Create "Show Connectivity" button
+	const connectivityButton = createDiv()
+	toolbarEl.appendChild(connectivityButton)
+	connectivityButton.classList.add('C-circuit-button', 'C-circuit-button-connectivity')
+	connectivityButton.setAttribute('title', 'Show circuit connectivity')
+	connectivityButton.innerHTML = '&#8646;' // Exchange arrow
+	connectivityButton.style.fontSize = '1.5rem'
+
+
+	//  Toggle logic for animation buttons
+	let animationMode = 'connectivity' // Default to connectivity as per latest user preference? Or signal? User said "active current signal is also nice". Let's default to connectivity (current state).
+
+	// Update wire animations based on trace and mode
+	C.Circuit.Editor.updateWireAnimations = function (circuitEl) {
+		console.log('=== updateWireAnimations called ===')
+		const
+			circuit = circuitEl.circuit,
+			trace = circuit.trace,
+			backgroundEl = circuitEl.querySelector('.C-circuit-board-background'),
+			signalBtn = circuitEl.querySelector('.C-circuit-button-signal'),
+			connBtn = circuitEl.querySelector('.C-circuit-button-connectivity')
+
+		let mode = null
+		if (signalBtn && signalBtn.classList.contains('C-circuit-button-active')) mode = 'signal'
+		else if (connBtn && connBtn.classList.contains('C-circuit-button-active')) mode = 'connectivity'
+
+		console.log('Animation mode:', mode)
+		console.log('Circuit operations:', circuit.operations)
+		console.log('Circuit timewidth:', circuit.timewidth)
+		console.log('Circuit bandwidth:', circuit.bandwidth)
+
+		if (!mode) {
+			console.log('No mode active, clearing animations')
+			// Clear all animations
+			const wires = backgroundEl.querySelectorAll('.C-circuit-wire-animated')
+			wires.forEach(el => {
+				el.style.removeProperty('--wire-mask')
+				el.style.removeProperty('--wire-clip')
+				el.classList.remove('C-circuit-wire-animated')
+			})
+			return
+		}
+
+		// Helper to get wire element
+		const getWireEl = (wireIndex) => {
+			let rowEl = backgroundEl.querySelector(`div[register-index="${wireIndex}"]`)
+			if (rowEl) return rowEl.querySelector('.C-circuit-register-wire')
+
+			rowEl = backgroundEl.querySelector(`div[wire-index="${wireIndex}"]`)
+			if (rowEl) return rowEl.querySelector('.C-circuit-register-wire')
+			return null
+		}
+
+		const allWireIndices = new Set()
+		for (let i = 1; i <= circuit.bandwidth; i++) allWireIndices.add(i)
+		if (circuit.intermediateWires) {
+			Object.keys(circuit.intermediateWires).forEach(k => allWireIndices.add(+k))
+		}
+		console.log('All wire indices:', Array.from(allWireIndices))
+
+		if (mode === 'connectivity') {
+			console.log('--- CONNECTIVITY MODE ---')
+			// Build a map of which moments have operations on each wire
+			const wireOperations = new Map() // wireIndex -> array of momentIndices
+
+			circuit.operations.forEach(op => {
+				console.log('Processing operation:', op)
+				// Track input wires
+				if (op.inputWires) {
+					op.inputWires.forEach(wireIdx => {
+						if (!wireOperations.has(wireIdx)) wireOperations.set(wireIdx, [])
+						wireOperations.get(wireIdx).push(op.momentIndex)
+						console.log(`  Input wire ${wireIdx} at moment ${op.momentIndex}`)
+					})
+				}
+				// Track output wire
+				if (op.outputWire) {
+					if (!wireOperations.has(op.outputWire)) wireOperations.set(op.outputWire, [])
+					wireOperations.get(op.outputWire).push(op.momentIndex)
+					console.log(`  Output wire ${op.outputWire} at moment ${op.momentIndex}`)
+				}
+			})
+
+			console.log('Wire operations map:', wireOperations)
+
+			// First pass: remove all animations to reset timing
+			allWireIndices.forEach(wireIndex => {
+				const wireEl = getWireEl(wireIndex)
+				if (wireEl) {
+					wireEl.classList.remove('C-circuit-wire-animated')
+				}
+			})
+
+			// Force a reflow to ensure the removal takes effect
+			backgroundEl.offsetHeight
+
+			// Second pass: add animations back synchronously
+			allWireIndices.forEach(wireIndex => {
+				const wireEl = getWireEl(wireIndex)
+				if (!wireEl) {
+					console.log(`Wire ${wireIndex}: element not found`)
+					return
+				}
+
+				const moments = wireOperations.get(wireIndex)
+				if (!moments || moments.length === 0) {
+					console.log(`Wire ${wireIndex}: no operations, removing animation`)
+					// No operations on this wire - no beam
+					wireEl.style.removeProperty('--wire-mask')
+					wireEl.style.removeProperty('--wire-clip')
+					wireEl.classList.remove('C-circuit-wire-animated')
+					return
+				}
+
+				// Find the range of moments this wire is active
+				const minMoment = Math.min(...moments)
+				const maxMoment = Math.max(...moments)
+				console.log(`Wire ${wireIndex}: moments ${moments}, range ${minMoment}-${maxMoment}`)
+
+				// For intermediate wires (non-integer indices), the beam should start
+				// from where the wire is created (first operation), not from the input
+				const isIntermediateWire = wireIndex % 1 !== 0
+				const beamStartMoment = isIntermediateWire ? minMoment : 0
+
+				console.log(`Wire ${wireIndex}: isIntermediate=${isIntermediateWire}, beamStart=${beamStartMoment}`)
+
+				// Calculate clip-path to show beam only in the active region
+				// inset(top right bottom left)
+				// The beam should flow TO the gate, so we use maxMoment (not maxMoment-1)
+				const startPercent = (beamStartMoment / circuit.timewidth) * 100
+				const endPercent = ((maxMoment) / circuit.timewidth) * 100  // Changed from maxMoment to include the gate position
+				const leftInset = startPercent
+				const rightInset = 100 - endPercent
+
+				const clipPath = `inset(0 ${rightInset}% 0 ${leftInset}%)`
+				console.log(`Wire ${wireIndex}: clip-path = ${clipPath} (${startPercent}% to ${endPercent}%)`)
+
+				wireEl.style.setProperty('--wire-clip', clipPath)
+				wireEl.classList.add('C-circuit-wire-animated')
+			})
+		} else if (mode === 'signal') {
+			console.log('--- SIGNAL MODE ---')
+			// Signal mode: use trace
+			if (!trace) {
+				console.log('No trace available')
+				return
+			}
+			console.log('Trace data:', trace)
+
+			allWireIndices.forEach(wireIndex => {
+				const wireEl = getWireEl(wireIndex)
+				if (!wireEl) return
+
+				const step = 100 / circuit.timewidth
+				let maskGradient = 'linear-gradient(to right'
+				for (let m = 0; m < circuit.timewidth; m++) {
+					const val = (trace[m] && trace[m][wireIndex]) ? 1 : 0
+					const color = val ? 'black' : 'transparent'
+					maskGradient += `, ${color} ${m * step}%, ${color} ${(m + 1) * step}%`
+				}
+				maskGradient += ')'
+
+				console.log(`Wire ${wireIndex}: signal mask =`, maskGradient)
+				wireEl.style.setProperty('--wire-mask', maskGradient)
+				wireEl.classList.add('C-circuit-wire-animated')
+			})
+		}
+		console.log('=== updateWireAnimations complete ===')
+	}
+
+	const updateButtonStyles = () => {
+		signalButton.classList.toggle('C-circuit-button-active', animationMode === 'signal')
+		connectivityButton.classList.toggle('C-circuit-button-active', animationMode === 'connectivity')
+		// Trigger animation update
+		C.Circuit.Editor.updateWireAnimations(circuitEl)
+	}
+
+	signalButton.addEventListener('click', () => {
+		animationMode = (animationMode === 'signal') ? null : 'signal'
+		updateButtonStyles()
+	})
+
+	connectivityButton.addEventListener('click', () => {
+		animationMode = (animationMode === 'connectivity') ? null : 'connectivity'
+		updateButtonStyles()
+	})
+
+
 	//  Create an "Evaluate" button
 
 	const evaluateButton = createDiv()
@@ -145,6 +341,11 @@ C.Circuit.Editor = function (circuit, targetEl) {
 	evaluateButton.classList.add('C-circuit-button', 'C-circuit-button-evaluate')
 	evaluateButton.setAttribute('title', 'Evaluate circuit')
 	evaluateButton.innerText = 'RUN'
+
+
+	// ... (rest of the setup code) ...
+
+
 
 
 	//  Create a circuit board container
@@ -207,26 +408,26 @@ C.Circuit.Editor = function (circuit, targetEl) {
 			backgroundEl.appendChild(rowEl)
 			rowEl.classList.add('C-circuit-intermediate-wire')
 			rowEl.style.position = 'relative'
-
-			// For single resolution grid:
-			// Wire 1.5 -> Between Row 2 (Reg 1) and Row 3 (Reg 2)
-			// We place it in Row 2 and align to bottom
-			const floorIndex = Math.floor(wireIndex)
-			rowEl.style.gridRowStart = floorIndex + 1
-
+			// Position: row index is floor(wireIndex) + 1 (because 1-based)
+			// But we want it visually between rows.
+			// If wireIndex is 1.5, it's between wire 1 (row 2) and wire 2 (row 3).
+			// So we put it in row 2, but push it down?
+			// Or we use the fractional logic we added to set$.
+			// Let's put it in the row ABOVE (floor) and use top: 100%
+			const rowIndex = Math.floor(wireIndex) + 1
+			rowEl.style.gridRowStart = rowIndex
+			rowEl.style.gridRowEnd = rowIndex + 1
 			rowEl.style.gridColumnStart = 1
 			rowEl.style.gridColumnEnd = C.Circuit.Editor.momentIndexToGridColumn(circuit.timewidth) + 1
 			rowEl.style.zIndex = '0'
+			rowEl.setAttribute('wire-index', wireIndex)
 
 			const wireEl = createDiv()
 			rowEl.appendChild(wireEl)
 			wireEl.classList.add('C-circuit-register-wire')
-
-			// Style as intermediate wire (dashed, lower opacity)
 			wireEl.style.borderTopStyle = 'dashed'
-			wireEl.style.opacity = '0.3'
-
-			// Position exactly at the bottom of this row (which is the top of the next row)
+			// Position at bottom of row
+			wireEl.style.position = 'absolute'
 			wireEl.style.top = '100%'
 			wireEl.style.marginTop = '-0.5px' // Center on the grid line
 		})
@@ -249,14 +450,14 @@ C.Circuit.Editor = function (circuit, targetEl) {
 	}
 
 
-	//  Create the circuit board foreground
+	//  Create a foreground container for operations
 
 	const foregroundEl = createDiv()
 	boardEl.appendChild(foregroundEl)
 	foregroundEl.classList.add('C-circuit-board-foreground')
 
 
-	//  Add "Select All" toggle button to upper-left corner (like q.js)
+	//  Create the "Select All" button in the top-left corner
 
 	const selectallEl = createDiv()
 	foregroundEl.appendChild(selectallEl)
@@ -290,16 +491,13 @@ C.Circuit.Editor = function (circuit, targetEl) {
 
 	for (let i = 0; i < circuit.bandwidth; i++) {
 
-		const
-			registerIndex = i + 1,
-			registersymbolEl = createDiv()
-
-		foregroundEl.appendChild(registersymbolEl)
-		registersymbolEl.classList.add('C-circuit-header', 'C-circuit-register-label')
-		registersymbolEl.setAttribute('title', 'Bit ' + registerIndex + ' of ' + circuit.bandwidth)
-		registersymbolEl.setAttribute('register-index', registerIndex)
-		registersymbolEl.style.gridRowStart = C.Circuit.Editor.registerIndexToGridRow(registerIndex)
-		registersymbolEl.innerText = 'B' + registerIndex
+		const labelEl = createDiv()
+		foregroundEl.appendChild(labelEl)
+		labelEl.classList.add('C-circuit-header', 'C-circuit-register-label')
+		labelEl.innerText = 'q' + (i + 1)
+		labelEl.style.gridRowStart = i + 2
+		labelEl.style.gridColumnStart = 2
+		labelEl.setAttribute('register-index', i + 1)
 	}
 
 
@@ -307,16 +505,13 @@ C.Circuit.Editor = function (circuit, targetEl) {
 
 	for (let i = 0; i < circuit.timewidth; i++) {
 
-		const
-			momentIndex = i + 1,
-			momentsymbolEl = createDiv()
-
-		foregroundEl.appendChild(momentsymbolEl)
-		momentsymbolEl.classList.add('C-circuit-header', 'C-circuit-moment-label')
-		momentsymbolEl.setAttribute('title', 'Moment ' + momentIndex + ' of ' + circuit.timewidth)
-		momentsymbolEl.setAttribute('moment-index', momentIndex)
-		momentsymbolEl.style.gridColumnStart = C.Circuit.Editor.momentIndexToGridColumn(momentIndex)
-		momentsymbolEl.innerText = momentIndex
+		const labelEl = createDiv()
+		foregroundEl.appendChild(labelEl)
+		labelEl.classList.add('C-circuit-header', 'C-circuit-moment-label')
+		labelEl.innerText = i + 1
+		labelEl.style.gridRowStart = 1
+		labelEl.style.gridColumnStart = i + 3
+		labelEl.setAttribute('moment-index', i + 1)
 	}
 
 
@@ -405,6 +600,9 @@ C.Circuit.Editor = function (circuit, targetEl) {
 		circuit.toDiagram(),
 		'\n\n\n'
 	)
+
+	// Initial style update (must be after DOM is built)
+	updateButtonStyles()
 }
 
 
@@ -983,6 +1181,9 @@ C.Circuit.Editor.prototype.onExternalSet = function (event) {
 
 		// Redraw intermediate wires
 		C.Circuit.Editor.drawIntermediateWires(this.domElement)
+
+		// Update wire animations to show connectivity
+		C.Circuit.Editor.updateWireAnimations(this.domElement)
 	}
 }
 
@@ -999,7 +1200,21 @@ C.Circuit.Editor.prototype.onExternalClear = function (event) {
 
 		// Redraw intermediate wires
 		C.Circuit.Editor.drawIntermediateWires(this.domElement)
+
+		// Update wire animations to show connectivity
+		C.Circuit.Editor.updateWireAnimations(this.domElement)
 	}
 }
+
+
+
+
+window.addEventListener('C.Circuit.evaluate completed', function (event) {
+
+	const circuitEl = document.querySelector('.C-circuit')
+	if (circuitEl && circuitEl.circuit === event.detail.circuit) {
+		C.Circuit.Editor.updateWireAnimations(circuitEl)
+	}
+})
 
 
