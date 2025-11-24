@@ -184,7 +184,7 @@ C.Circuit.Editor = function (circuit, targetEl) {
 			wires.forEach(el => {
 				el.style.removeProperty('--wire-mask')
 				el.style.removeProperty('--wire-clip')
-				el.classList.remove('C-circuit-wire-animated')
+				el.classList.remove('C-circuit-wire-animated', 'C-circuit-wire-signal')
 			})
 			return
 		}
@@ -235,7 +235,7 @@ C.Circuit.Editor = function (circuit, targetEl) {
 			allWireIndices.forEach(wireIndex => {
 				const wireEl = getWireEl(wireIndex)
 				if (wireEl) {
-					wireEl.classList.remove('C-circuit-wire-animated')
+					wireEl.classList.remove('C-circuit-wire-animated', 'C-circuit-wire-signal')
 				}
 			})
 
@@ -256,7 +256,7 @@ C.Circuit.Editor = function (circuit, targetEl) {
 					// No operations on this wire - no beam
 					wireEl.style.removeProperty('--wire-mask')
 					wireEl.style.removeProperty('--wire-clip')
-					wireEl.classList.remove('C-circuit-wire-animated')
+					wireEl.classList.remove('C-circuit-wire-animated', 'C-circuit-wire-signal')
 					return
 				}
 
@@ -288,29 +288,83 @@ C.Circuit.Editor = function (circuit, targetEl) {
 			})
 		} else if (mode === 'signal') {
 			console.log('--- SIGNAL MODE ---')
-			// Signal mode: use trace
+			// Signal mode: use trace to show beams only where signal is 1
 			if (!trace) {
-				console.log('No trace available')
+				console.log('No trace available - clearing signal animations')
+				// Clear all signal animations since circuit hasn't been evaluated
+				allWireIndices.forEach(wireIndex => {
+					const wireEl = getWireEl(wireIndex)
+					if (wireEl) {
+						wireEl.style.removeProperty('--wire-clip')
+						wireEl.classList.remove('C-circuit-wire-animated', 'C-circuit-wire-signal')
+					}
+				})
 				return
 			}
 			console.log('Trace data:', trace)
 
+			// First pass: remove all animations to reset timing
+			allWireIndices.forEach(wireIndex => {
+				const wireEl = getWireEl(wireIndex)
+				if (wireEl) {
+					// Force stop animation
+					wireEl.style.animation = 'none'
+					wireEl.style.removeProperty('--wire-clip')
+					wireEl.classList.remove('C-circuit-wire-animated', 'C-circuit-wire-signal')
+				}
+			})
+
+			// Force a reflow
+			backgroundEl.offsetHeight
+
+			// Remove the animation: none override
+			allWireIndices.forEach(wireIndex => {
+				const wireEl = getWireEl(wireIndex)
+				if (wireEl) {
+					wireEl.style.removeProperty('animation')
+				}
+			})
+
+			// Second pass: add animations based on signal values
 			allWireIndices.forEach(wireIndex => {
 				const wireEl = getWireEl(wireIndex)
 				if (!wireEl) return
 
-				const step = 100 / circuit.timewidth
-				let maskGradient = 'linear-gradient(to right'
+				// Find segments where signal is 1
+				const activeSegments = []
+				const traceValues = []
 				for (let m = 0; m < circuit.timewidth; m++) {
-					const val = (trace[m] && trace[m][wireIndex]) ? 1 : 0
-					const color = val ? 'black' : 'transparent'
-					maskGradient += `, ${color} ${m * step}%, ${color} ${(m + 1) * step}%`
+					const traceValue = trace[m] && trace[m][wireIndex]
+					traceValues.push(traceValue)
+					// Only show beam if signal value is explicitly 1
+					if (traceValue === 1) {
+						activeSegments.push(m)
+					}
 				}
-				maskGradient += ')'
 
-				console.log(`Wire ${wireIndex}: signal mask =`, maskGradient)
-				wireEl.style.setProperty('--wire-mask', maskGradient)
-				wireEl.classList.add('C-circuit-wire-animated')
+				console.log(`Wire ${wireIndex}: trace values = [${traceValues}], active segments = [${activeSegments}]`)
+
+				if (activeSegments.length === 0) {
+					console.log(`Wire ${wireIndex}: no signal (all 0s)`)
+					wireEl.style.removeProperty('--wire-clip')
+					return
+				}
+
+				// Calculate clip-path for signal segments
+				// For simplicity, show from first to last active segment
+				const minMoment = Math.min(...activeSegments)
+				const maxMoment = Math.max(...activeSegments)
+
+				const startPercent = (minMoment / circuit.timewidth) * 100
+				const endPercent = ((maxMoment + 1) / circuit.timewidth) * 100
+				const leftInset = startPercent
+				const rightInset = 100 - endPercent
+
+				const clipPath = `inset(0 ${rightInset}% 0 ${leftInset}%)`
+				console.log(`Wire ${wireIndex}: signal segments ${activeSegments}, clip-path = ${clipPath}`)
+
+				wireEl.style.setProperty('--wire-clip', clipPath)
+				wireEl.classList.add('C-circuit-wire-animated', 'C-circuit-wire-signal')
 			})
 		}
 		console.log('=== updateWireAnimations complete ===')
@@ -1182,6 +1236,9 @@ C.Circuit.Editor.prototype.onExternalSet = function (event) {
 		// Redraw intermediate wires
 		C.Circuit.Editor.drawIntermediateWires(this.domElement)
 
+		// Invalidate trace data since circuit has changed
+		this.circuit.trace = null
+
 		// Update wire animations to show connectivity
 		C.Circuit.Editor.updateWireAnimations(this.domElement)
 	}
@@ -1200,6 +1257,9 @@ C.Circuit.Editor.prototype.onExternalClear = function (event) {
 
 		// Redraw intermediate wires
 		C.Circuit.Editor.drawIntermediateWires(this.domElement)
+
+		// Invalidate trace data since circuit has changed
+		this.circuit.trace = null
 
 		// Update wire animations to show connectivity
 		C.Circuit.Editor.updateWireAnimations(this.domElement)
